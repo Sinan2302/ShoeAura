@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email OTP Verification</title>
+    <link rel="stylesheet" href="/public/css/user/userlogin.css">
+    <style>
+    
+        /* Form Section */
+        .form-section {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            flex: 1;
+            max-width: 400px;
+        }
+        .form-section h1 {
+            margin-bottom: 20px;
+            color: #000000;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .btn {
+            background-color: #ffffff;
+            color: rgb(0, 0, 0);
+            box-shadow:  0 0 10px rgb(0, 0, 0);
+            font-weight: bold;
+
+        }
+        .btn:hover{
+            background-color: #e6e7e7;
+        }
+        .btn:disabled {
+            background: #ccc;
+        }
+        .resend-timer {
+            margin: 10px;
+            color: #555;
+        }
+        .image-section {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .image-section img {
+            max-width: 100%;
+            /* height: auto; */
+            border-radius: 40px 0 0 40px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        @media (max-width: 768px) {
+            .verification-container {
+                flex-direction: column;
+            }
+            .image-section {
+                margin-bottom: 20px;
+
+
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <div class="form-section">
+            <h1>Email Verification</h1>
+            <p>We have sent an OTP to your email. Please enter it below to verify.</p>
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label for="otp">Enter OTP</label>
+                    <input type="text" id="otp" name="otp" placeholder="Enter your OTP" maxlength="6" required>
+                </div>
+                <button type="submit" class="btn" id="verify-btn">Verify</button>
+            </form>
+            <div class="resend-timer">
+                Resend OTP in <span id="timer">30</span> seconds
+            </div>
+            <button class="btn" id="resend-btn" disabled>Resend OTP</button>
+        </div>
+        <div class="image-section">
+            <img src="/public/images/about.jpg" alt="OTP Verification Illustration">
+        </div>
+    </div>
+    <script>
+        let timerElement = document.getElementById('timer');
+        let resendButton = document.getElementById('resend-btn');
+        let countdown = 30;
+
+        const updateTimer = () => {
+            if (countdown > 0) {
+                timerElement.textContent = countdown;
+                countdown--;
+            } else {
+                clearInterval(timerInterval);
+                resendButton.disabled = false;
+                timerElement.textContent = '0';
+            }
+        };
+
+        let timerInterval = setInterval(updateTimer, 1000);
+
+        resendButton.addEventListener('click', () => {
+            countdown = 30;
+            resendButton.disabled = true;
+            timerInterval = setInterval(updateTimer, 1000);
+            alert('OTP resent to your email!');
+        });
+    </script>
+</body>
+</html>

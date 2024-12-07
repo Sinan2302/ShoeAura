@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/public/css/admin/user_management.css">
+    <title>User Management</title>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <a href="dashboard.html">Dashboard</a>
+            <a class="clr" href="user_management.html">User Management</a>
+            <a href="product_management.html">Products Management</a>
+            <a href="#">Order Management</a>
+            <a href="category_management.html">Category Management</a>
+            <a href="#">Coupons Management</a>
+        </div>
+
+        <div class="main-content">
+            <nav class="navbar">
+                <a class="navbar-brand">Fashion Shoes</a>
+                <!-- <form class="form-inline">
+                    <input class="form-control" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn" type="submit">Search</button>
+                </form> -->
+            </nav>
+
+            <div class="content">
+                <h1>User Management</h1>
+
+                <!-- Search and Table Section -->
+                <div class="user-section">
+                    <div class="search-container">
+                        <input type="text" class="form-control" placeholder="Search Users...">
+                        <button class="btn search-btn" type="button">Search</button>
+                        <a href="adduser.html"><button class="btn search-btn" type="button">Add user</button></a>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Join Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Example Rows -->
+                                <tr>
+                                    <td>JohnDoe</td>
+                                    <td>john@example.com</td>
+                                    <td>+1234567890</td>
+                                    <td>2023-01-15</td>
+                                    <td>
+                                        <a href="userUpdate.html"><button class="btn update-btn">Update</button></a>
+                                        <button class="btn ban-btn">Ban</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>JaneSmith</td>
+                                    <td>jane@example.com</td>
+                                    <td>+9876543210</td>
+                                    <td>2023-02-20</td>
+                                    <td>
+                                        <a href="userUpdate.html"><button class="btn update-btn">Update</button></a>
+                                        <button class="btn ban-btn">Ban</button>
+                                    </td>
+                                </tr>
+                                <!-- Add dynamic rows here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/public/css/admin/user_management.css">
+    <title>Product Management</title>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="user_management.html">User Management</a>
+            <a class="clr" href="product_management.html">Products Management</a>
+            <a href="#">Order Management</a>
+            <a href="category_management.html">Category Management</a>
+            <a href="#">Coupons Management</a>
+        </div>
+
+        <div class="main-content">
+            <nav class="navbar">
+                <a class="navbar-brand">Fashion Shoes</a>
+            </nav>
+
+            <div class="content">
+                <h1>Product Management</h1>
+
+                <!-- Search and Table Section -->
+                <div class="user-section">
+                    <div class="search-container">
+                        <input type="text" class="form-control" placeholder="Search products...">
+                        <button class="btn search-btn" type="button">Search</button>
+                        <a href="addproduct.html"><button class="btn search-btn" type="button">Add product</button></a>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th>Category</th>
+                                    <th>Brand</th>
+                                    <th>OG price</th>
+                                    <th>Offer Price</th>
+                                    <th>Update</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Example Rows -->
+                                <tr>
+                                    <td>Nike Shoe</td>
+                                    <td>Men</td>
+                                    <td>Nike</td>
+                                    <td>4900</td>
+                                    <td>3900</td>
+                                    <td>
+                                       
+                                       <a href="productUpdate.html"><button class="btn update-btn">Update</button></a>
+                                    </td>
+                                    <td>
+                                        <button class="btn delete-btn">Delete</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Puma Shoe</td>
+                                    <td>Women</td>
+                                    <td>Puma</td>
+                                    <td>4900</td>
+                                    <td>3900</td>
+                                    <td>
+                                        <a href="productUpdate.html"><button class="btn update-btn">Update</button></a>
+                                    </td>
+                                    <td>
+                                        <button class="btn delete-btn">Delete</button>
+                                    </td>
+                                </tr>
+                                <!-- Add dynamic rows here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>                
+            </div>
+        </div>
+    </div>
+</body>
+</html>

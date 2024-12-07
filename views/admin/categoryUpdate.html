@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/public/css/admin/user_management.css">
+    <title>Update category</title>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="user_management.html">User Management</a>
+            <a href="product_management.html">Products Management</a>
+            <a href="#">Order Management</a>
+            <a class="clr" href="category_management.html">Category Management</a>
+            <a href="#">Coupons Management</a>
+        </div>
+
+        <div class="main-content">
+            <nav class="navbar">
+                <a class="navbar-brand">Fashion Shoes</a>
+                <!-- <form class="form-inline">
+                    <input class="form-control" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn" type="submit">Search</button>
+                </form> -->
+            </nav>
+
+            <div class="content">
+                <h1>Category Management</h1>
+
+                <!-- Add User Form -->
+                <div class="add-user-form">
+                    <h2>Update Category</h2>
+                    <form action="#" method="POST" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="categoryname">Category name:</label>
+                            <input type="text" id="categoryname" name="categoryname" placeholder="Enter Category name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="Discription">Discription:</label>
+                            <input type="text" id="Discription" name="Discription" placeholder="Give Discription" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="count">Products Count:</label>
+                            <input type="text" id="count" name="count"  placeholder="Enter count" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="images">Category Images:</label>
+                            <input type="file" id="images" name="images[]" accept="image/*" multiple required>
+                        </div>                                               
+                        <button type="submit" class="btn add-user-btn">Update</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
