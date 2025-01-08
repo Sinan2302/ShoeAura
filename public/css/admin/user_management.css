@@ -3,10 +3,12 @@ body, html {
     height: 100%;
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #1a1a1a;
     color: #ffffff;
+    background-color: #706d6d;
 }
-
+h1{
+    color: #96f1a2;
+}
 .container {
     display: flex;
     flex-direction: row;
@@ -17,11 +19,13 @@ body, html {
 /* Sidebar */
 .sidebar {
     width: 250px;
-    background-color: #2a2a2a;
     padding: 20px;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
+    
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+
 }
 .sidebar a {
     color: #4CA858;
@@ -43,10 +47,11 @@ body, html {
 }
 
 .sidebar a.clr:hover {
-    background-color: #4CA858;
+    background-color: #6dc679;
 }
 a.clr{
-    background-color: #4f4747;
+    background-color: #4CA858;
+    color: #2a2a2a;
 }
 
 /* Main Content */
@@ -112,7 +117,7 @@ a.clr{
 .content h1 {
     margin-bottom: 20px;
     font-size: 24px;
-    color: #ffffff;
+
 }
 
 /* User Section */
@@ -166,7 +171,7 @@ table {
     background-color: #2a2a2a;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
     border-radius: 8px;
-    color: #ffffff;
+    color: #4CA858;
 }
 
 table th, table td {
@@ -201,12 +206,21 @@ table td button {
 .update-btn:hover {
     background-color: #4bc15b;
 }
-
-.ban-btn {
-    background-color: red;
-    color: #fff;
+.view-btn{
+    background-color: rgb(41, 206, 252);
 }
+.ban-btn {
+    background-color: #ff3c00;
+    border: none;
+    color: #ffffff;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+}
+.unban-btn{
+    background-color: yellow;
 
+}
 .ban-btn:hover {
     background-color: tomato;
 }
@@ -220,7 +234,9 @@ table td button {
 }
 
 
-
+.logo-header{
+    max-width: 250px;
+}
 /* Add User Form */
 .add-user-form {
     background-color: #2a2a2a;
@@ -270,4 +286,141 @@ table td button {
 
 .add-user-form .btn:hover {
     background-color: #4bc15b;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 10%;
+    left: 10%;
+    right: 10%;
+    bottom: 10%;
+    background-color: rgba(0, 0, 0, 0.8);
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto; /* Allow scrolling if content exceeds modal height */
+    z-index: 1000; /* Ensure modal is above other elements */
+}
+
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+    max-width: 90%;
+    max-height: 80%;
+    margin: auto;
+    overflow: auto; /* Ensure content inside modal scrolls if it overflows */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cropped-images-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center; /* Center the cropped images */
+}
+
+.cropped-images-container img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Ensure the crop button stays visible */
+.crop-button-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center; /* Center the crop button */
+}
+.hidden-file-input {
+    display: none;
+}
+
+.file-label {
+    cursor: pointer;
+    color: #4bc15b;
+    text-decoration: underline;
+}
+
+.image-container {
+    display: inline-block;
+    margin: 5px;
+    text-align: center;
+}
+
+.thumbnails-container {
+    display: flex;
+    overflow-x: auto;
+}
+
+
+.thumbnail {
+    margin-right: 10px;
+}
+.cropping-image {
+    max-width: 300px; 
+    max-height: 300px; 
+    width: auto;
+    height: auto;
+}
+/* Pagination Container */
+.block-27 ul {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    
+}
+
+.block-27 ul li {
+    display: inline;
+    margin: 0 5px;
+    
+}
+
+.block-27 ul li a {
+    display: inline-block;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    color: red;
+    transition: all 0.3s ease;
+    border-radius: 20px;
+
+}
+
+.block-27 ul li a:hover {
+    background-color: rgb(41, 206, 252);
+    color: #fff;
+    border-color: #4c86a8;
+    border-radius: 5px;
+
+}
+
+.block-27 ul li.active a {
+    background-color: #4CA858;
+    color: #fff;
+    border-color: #4CA858;
+    border-radius: 20px;
+}
+
+.block-27 ul li a i {
+    font-size: 16px;
+    vertical-align: middle;
+}
+
+/* Adjustments for small screens */
+@media (max-width: 576px) {
+    .block-27 ul li a {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
 }

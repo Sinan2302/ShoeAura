@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>User Management</title>
+        <link rel="icon" type="image/png" href="/images/shoeAura icon.png">
+        <link rel="stylesheet" href="/css/admin/user_management.css">
+        
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a class="clr" href="/admin/usermanagement">User Management</a>
+            <a href="/admin/product_management">Products Management</a>
+            <a href="#">Order Management</a>
+            <a href="/admin/category_management">Category Management</a>
+            <a href="#">Coupons Management</a>
+            <a href="#"><form action="/admin/logout" method="POST">
+                <button type="submit" class="ban-btn btn-danger ">Logout</button>
+            </form></a>
+        </div>
+
+        <div class="main-content">
+            <nav class="navbar">
+                <a class="navbar-brand"><div id="colorlib-logo"><img class="logo-header" src="/images/new shoeAura.png" alt=""></div></a>
+             
+            </nav>
+
+            <div class="content">
+                <h1>User Management</h1>
+
+                <!-- Search and Table Section -->
+                <div class="user-section">
+                    <div class="search-container">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search Users...">
+                        <button class="btn search-btn"  onclick="searchUser()" type="button">Search</button>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="user-table">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Join Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Example Rows -->
+                                    <% users.forEach(user => { %>
+                                        <tr>
+                                            <td><%= user.name %></td>
+                                            <td><%= user.email %></td>
+                                            <td><%= user.phone %></td>
+                                            <td><%= user.createdOn %></td>
+                                            <td>
+                                                <% if (user.isBlocked) { %>
+                                                    <button class="btn unban-btn" onclick="UnbanUser('<%= user._id %>')">Unban</button>
+                                                <% } else { %>
+                                                    <button class="btn ban-btn" onclick="banUser('<%= user._id %>')">Ban</button>
+                                                <% } %>
+                                                
+                                            </td> 
+                                        </tr>
+                                    <% }); %>
+                                
+                            
+                                <!-- Add dynamic rows here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function searchUser() {
+            const searchInput = document.getElementById("searchInput").value.toLowerCase();
+            const table = document.querySelector(".user-table tbody");
+            const rows = table.querySelectorAll("tr");
+
+            rows.forEach(row => {
+                const username = row.cells[0].textContent.toLowerCase(); 
+                if (username.includes(searchInput)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none"; 
+                }
+            });
+        }
+
+        function banUser(userId) {
+            fetch(`/admin/banUser/${userId}`, {  
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',            
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+            
+                if (data.success) {
+                    Swal.fire({  
+                        icon: "success",
+                        title: 'Success',
+                        text: 'Banned successfully!', 
+                    }).then(()=>{
+                        location.reload();  
+                    })
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: 'Error',
+                        text: data.message || 'Error occurred!', 
+                    });
+                }
+            })
+            .catch(error => {
+                console.error("Error banning user: ", error);
+                Swal.fire({
+                    icon: "error",
+                    title: 'Error',
+                    text: 'Server error occurred!', 
+                });
+            });
+        }
+
+
+        function UnbanUser(userId) {
+            fetch(`/admin/UnbanUser/${userId}`, {  
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',            
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+            
+                if (data.success) {
+                    Swal.fire({  
+                        icon: "success",
+                        title: 'Success',
+                        text: 'UnBanned successfully!', 
+                    }).then(()=>{
+                        location.reload();  
+                    })
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: 'Error',
+                        text: data.message || 'Error occurred!', 
+                    });
+                }
+            })
+            .catch(error => {
+                console.error("Error Unbanning user: ", error);
+                Swal.fire({
+                    icon: "error",
+                    title: 'Error',
+                    text: 'Server error occurred!', 
+                });
+            });
+        }
+
+
+    </script>
+</body>
+</html>

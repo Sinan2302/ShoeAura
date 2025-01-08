@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/admin/user_management.css">
+    <title>Product Management</title>
+    <link rel="icon" type="image/png" href="/images/shoeAura icon.png">
+
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/usermanagement">User Management</a>
+            <a class="clr" href="/admin/product_management">Products Management</a>
+            <a href="#">Order Management</a>
+            <a href="/admin/category_management">Category Management</a>
+            <a href="#">Coupons Management</a>
+            <a href="#"><form action="/admin/logout" method="POST">
+                <button type="submit" class="ban-btn btn-danger ">Logout</button>
+            </form></a>
+        </div>
+
+        <div class="main-content">
+            <nav class="navbar">
+                <a class="navbar-brand"><div id="colorlib-logo"><img class="logo-header" src="/images/new shoeAura.png" alt=""></div></a>
+            </nav>
+
+            <div class="content">
+                <h1>Product Management</h1>
+
+                <!-- Search and Table Section -->
+                <div class="user-section">
+                    <div class="search-container">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search products...">
+                        <button class="btn search-btn" onclick="searchProducts()" type="button">Search</button>
+                        <a href="/admin/addproduct"><button class="btn search-btn" type="button">Add product</button></a>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="user-table ">
+                            <thead>
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th>Category</th>
+                                    <th>Brand</th>
+                                    <th>OG Price</th>
+                                    <th>Sale Price</th>
+                                    <th>Product Offer</th>
+                                    <th>Stock Quantity</th>
+                                    <th>Status</th>
+                                    <th>view</th>
+                                    <th>Update</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% products.forEach(product => { %>
+                                    <tr>
+                                        <td><%= product.productname %></td>
+                                        <td>
+                                            <% if (product.category) { %>
+                                                <%= product.category.categoryname %>
+                                            <% } else { %>
+                                                N/A
+                                            <% } %>
+                                        </td>
+                                        <td><%= product.brand %></td>
+                                        <td>$<%= product.price %></td>
+                                        <td>$<%= product.SalePrice %></td>
+                                        <td><%= product.productOffer %>%</td>
+                                        <td><%=  stockQuantity = Array.from(product.sizes.values()).reduce((acc, cur) => acc + cur, 0) %></td>
+                                        <td><%= product.isBlocked  || product.category.isBlocked || stockQuantity == 0 ? 'Out of Stock' : 'Available' %></td>
+                                        <td>
+                                            <a href="/admin/productview/<%= product._id %>">
+                                                <button class="btn view-btn">View</button>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="/admin/productUpdate/<%= product._id %>">
+                                                <button class="btn update-btn">Update</button>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <% if (product.isBlocked || product.category.isBlocked) { %>
+                                                <button class="btn unban-btn" onclick="unblocked_product('<%= product._id %>')">Unblock</button>
+                                            <% } else { %>
+                                                <button class="btn ban-btn" onclick="blocked_product('<%= product._id %>')">Block</button>
+                                            <% } %>
+
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <div class="block-27 " style="display: flex; justify-content: center; align-items: center; padding: 10px;">
+                           <ul>
+                            <% if (currentPage > 1) { %>
+                                <li><a href="?page=<%= currentPage - 1 %>"><i class="ion-ios-arrow-back"></i></a></li>
+                            <% } %>
+            
+                            <% for (let i = 1; i <= totalPages; i++) { %>
+                                <li class="<%= i === currentPage ? 'active' : '' %>">
+                                    <a href="?page=<%= i %>"><%= i %></a>
+                                </li>
+                            <% } %>
+            
+                            <% if (currentPage < totalPages) { %>
+                                <li><a href="?page=<%= currentPage + 1 %>"><i class="ion-ios-arrow-forward"></i></a></li>
+                            <% } %>
+                           </ul>
+                        </div>
+                    </div>             
+                </div>   
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+
+    function searchProducts() {
+        const searchInput = document.getElementById("searchInput").value.toLowerCase();
+        const table = document.querySelector(".user-table tbody");
+        const rows = table.querySelectorAll("tr");
+
+        rows.forEach(row => {
+            const productnameCell = row.cells[0];
+            const categoryCell = row.cells[1];
+            const brandCell = row.cells[2];
+
+            if (productnameCell && categoryCell && brandCell) {
+                const productname = productnameCell.textContent.toLowerCase();
+                const category = categoryCell.textContent.toLowerCase();
+                const brand = brandCell.textContent.toLowerCase();
+
+                if (
+                productname.includes(searchInput) ||
+                category.includes(searchInput) ||
+                brand.includes(searchInput)
+            ){
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            }
+        });
+    }
+
+    function blocked_product(productId) {
+    fetch(`/admin/blocked_product/${productId}`, {  
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',            
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({  
+                icon: "success",
+                title: 'Success',
+                text: 'Blocked successfully!', 
+            }).then(() => {
+                window.location.reload(); 
+            });
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: 'Error',
+                text: data.message || 'Error occurred!',
+            });
+        }
+    })
+    .catch(error => {
+        console.error("Error blocking product: ", error);
+        Swal.fire({
+            icon: "error",
+            title: 'Error',
+            text: 'Server error occurred!',
+        });
+    });
+    }
+
+
+    function unblocked_product(productId) {
+    fetch(`/admin/unblocked_product/${productId}`, {  
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',            
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({  
+                icon: "success",
+                title: 'Success',
+                text: 'Unblocked successfully!',
+            }).then(() => {
+                window.location.reload(); 
+            });
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: 'Error',
+                text: data.message || 'Error occurred!',
+            });
+        }
+    })
+    .catch(error => {
+        console.error("Error unblocking product: ", error);
+        Swal.fire({
+            icon: "error",
+            title: 'Error',
+            text: 'Server error occurred!',
+        });
+    });
+    }
+
+    </script>
+
+
+</body>
+</html>

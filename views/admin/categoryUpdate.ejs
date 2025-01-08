@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/admin/user_management.css">
+    <title>Update category</title>
+    <link rel="icon" type="image/png" href="/images/shoeAura icon.png">
+
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/usermanagement">User Management</a>
+            <a href="/admin/product_management">Products Management</a>
+            <a href="#">Order Management</a>
+            <a class="clr" href="/admin/category_management">Category Management</a>
+            <a href="#">Coupons Management</a>
+        </div>
+
+        <div class="main-content">
+            <nav class="navbar">
+                <a class="navbar-brand"><div id="colorlib-logo"><img class="logo-header" src="/images/new shoeAura.png" alt=""></div></a>
+              
+            </nav>
+
+            <div class="content">
+                <h1>Category Management</h1>
+
+                <!-- Add User Form -->
+                <div class="add-user-form">
+                    <h2>Update Category</h2>
+                    <form action="/admin/categoryUpdate/:id" method="POST" id="categoryForm" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="categoryname">Category name:</label>
+                            <input type="text" id="categoryname" name="categoryname" placeholder="Enter Category name" value="<%= categoryData.categoryname %>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="Discription">Description:</label>
+                            <input type="text" id="description" name="description" placeholder="Give Discription" value="<%= categoryData.description %>" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="categoryOffer">Category Offer</label>
+                            <input type="number" id="categoryOffer" name="categoryOffer"  placeholder="Enter count" value="<%= categoryData.categoryOffer %>" required>
+                        </div>                                               
+                        <button type="submit" class="btn add-user-btn">Update</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.getElementById('categoryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+    
+            const categoryId = "<%= categoryData._id %>";
+            const categoryname = document.getElementById('categoryname').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const categoryOffer = document.getElementById('categoryOffer').value.trim();
+    
+            fetch(`/admin/updateCategory/${categoryId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    categoryname,
+                    description,
+                    categoryOffer
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: 'Success',
+                        text: 'Category updated successfully',
+                    }).then(() => {
+                        window.location.href = '/admin/category_management'; 
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: 'Oops...',
+                        text: data.message || 'Failed to update category',
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: "error",
+                    title: 'Oops...',
+                    text: 'An unexpected error occurred while updating the category',
+                });
+            });
+        });
+    </script>
+    
+   
+</body>
+</html>

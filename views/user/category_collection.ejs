@@ -1,0 +1,188 @@
+<%- include('../../views/partials/user/header.ejs', {isLogin: typeof isLogin !== 'undefined' ? isLogin : false}) %>
+
+			<div class="sale">
+				<div class="container">
+					<div class="row">
+						<div class="col-sm-8 offset-sm-2 text-center">
+							<div class="row">
+								<div class="owl-carousel2">
+									<div class="item">
+										<div class="col">
+											<h3><a href="#">25% off (Almost) Everything! Use Code: Summer Sale</a></h3>
+										</div>
+									</div>
+									<div class="item">
+										<div class="col">
+											<h3><a href="#">Our biggest sale yet 50% off all summer shoes</a></h3>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</nav>
+
+		<div class="breadcrumbs">
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<p class="bread">
+							<% breadcrumbs.forEach((crumb, index) => { %>
+								<span>
+									<a style="color:tomato;" href="<%= crumb.url %>"><%= crumb.name %></a>
+								</span>
+								<% if (index < breadcrumbs.length - 1) { %> / <% } %>
+							<% }) %>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="breadcrumbs-two">
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<% 
+						  const categoryImages = {
+							"Sneakers": "/images/SneakersBanner.jpg",
+							"Loafers": "/images/Loafersbanner.webp",
+							"Formal Shoes": "/images/FormalBanner.jpg",
+							"Sports Shoes": "/images/SportsShoe.webp",
+							"Boots": "/images/BootsBanner.jpg"
+						  };
+					  
+						  const categoryImage = category.categoryname ? categoryImages[category.categoryname] : "/images/FormalBanner.jpg"; 
+						%>
+						
+						<div class="breadcrumbs-img" style="background-image: url('<%= categoryImage %>');">
+						</div>
+						
+						<div class="menu text-center">
+						  <p><a href="#">New Arrivals</a> <a href="#">Best Sellers</a> <a href="#">Extended Widths</a> <a href="#">Sale</a></p>
+						</div>
+					  </div>
+					  
+				</div>
+			</div>
+		</div>
+
+		<div class="colorlib-featured">
+			<div class="container">
+				<div class="row">
+					
+					<% if (category !== '/category_collection/676160612c9479069c64d7f1') { %>
+						<div id="sneakersDiv" class="col-sm-4 text-center">
+							<div class="featured">
+								<div class="featured-img featured-img-2" style="background-image: url(/images/airmax%202.webp);">
+									<h2 class="text-dark">Sneakers</h2>
+									<p><a href="/category_collection/676160612c9479069c64d7f1" class="btn btn-primary btn-lg">Shop now</a></p>
+								</div>
+							</div>
+						</div>
+					<% } %>
+					<% if (category !== '/category_collection/6761606e2c9479069c64d7f5') { %>	
+					<div id="FormalsDiv" class="col-sm-4 text-center">
+						<div class="featured">
+							<div class="featured-img featured-img-2" style="background-image: url(/images/Cap\ Toe\ Formal\ Shoes3.webp);">
+								<h2 class="text-dark">Formals</h2>
+								<p><a href="/category_collection/6761606e2c9479069c64d7f5" class="btn btn-primary btn-lg">Shop now</a></p>
+							</div>
+						</div>
+					</div>
+					<% } %>
+					<% if (category !== '/category_collection/6761607a2c9479069c64d7f9') { %>	
+					<div id="SportssDiv" class="col-sm-4 text-center">
+						<div class="featured">
+							<div class="featured-img featured-img-2" style="background-image: url(/images/\ Boost\ Runner\ Prime2.webp);">
+								<h2 class="text-dark">Sports</h2>
+								<p><a href="/category_collection/6761607a2c9479069c64d7f9" class="btn btn-primary btn-lg">Shop now</a></p>
+							</div>
+						</div>
+					</div>
+					<% } %>
+					<% if (category !== '/category_collection/676163f22c9479069c64d80d') { %>	
+					<div id="BootsDiv" class="col-sm-4 text-center">
+						<div class="featured">
+							<div class="featured-img featured-img-2" style="background-image: url(/images/Combat\ Lace-Up\ Boots3.webp);">
+								<h2 class="text-dark">Boots</h2>
+								<p><a href="/category_collection/676163f22c9479069c64d80d" class="btn btn-primary btn-lg">Shop now</a></p>
+							</div>
+						</div>
+					</div>
+					<% } %>
+				</div>
+			</div>
+		</div>
+
+		<div class="colorlib-product">
+			<div class="container">
+				<div class="row">
+					<div class="col-sm-8 offset-sm-2 text-center colorlib-heading">
+						<h2 class="Collectionhead" ><%= category.categoryname %> Collection</h2>
+					</div>
+					
+				</div>
+				<div class="row row-pb-md">
+					<% products.forEach(product => { %>
+						<div class="col-lg-3 mb-4 text-center">
+							<div class="product-entry underdetail border">
+								<a href="/product_details/<%= product.id %>" class="prod-img">
+									<img src="http://localhost:3000/uploads/<%= product.productImages[0] %>" class="img-fluid" alt="<%= product.productname %>">
+								</a>
+								<div class="desc">
+									<h2><a href="/product_details/<%= product.id %>"><%= product.productname %></a></h2>
+									<span class="brand"><%= product.brand %></span>
+									
+									<span class="price">$<%= product.SalePrice %>  <del class="strike">$<%= product.price %></del> <span class="offerper">(<%= product.productOffer%>% off)</span></span>
+								</div>
+							</div>
+						</div>
+					<% }); %>
+					
+					
+					
+				</div>
+				<div class="row">
+					<div class="col-md-12 text-center">
+						<div class="block-27">
+							<ul>
+								<% if (currentPage > 1) { %>
+									<li><a href="?page=<%= currentPage - 1 %>"><i class="ion-ios-arrow-back"></i></a></li>
+								<% } %>
+							
+								<% for (let i = 1; i <= totalPages; i++) { %>
+									<li class="<%= i === currentPage ? 'active' : '' %>">
+										<a href="?page=<%= i %>"><%= i %></a>
+									</li>
+								<% } %>
+							
+								<% if (currentPage < totalPages) { %>
+									<li><a href="?page=<%= currentPage + 1 %>"><i class="ion-ios-arrow-forward"></i></a></li>
+								<% } %>
+							</ul>
+							
+		            </div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script>
+			const currentUrl = window.location.href;
+		
+			if (currentUrl.includes('category_collection/676160612c9479069c64d7f1')) {
+				document.getElementById('sneakersDiv').style.display = 'none';
+			}else if(currentUrl.includes('category_collection/6761606e2c9479069c64d7f5')){
+				document.getElementById('FormalsDiv').style.display = 'none';
+			}
+			else if(currentUrl.includes('category_collection/6761607a2c9479069c64d7f9')){
+				document.getElementById('SportssDiv').style.display = 'none';
+			}
+			else if(currentUrl.includes('category_collection/676163f22c9479069c64d80d')){
+				document.getElementById('BootsDiv').style.display = 'none';
+			}
+		</script>
+		
+		<%-include('../../views/partials/user/footer.ejs')%>

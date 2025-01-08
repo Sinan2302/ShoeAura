@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In</title>
+    <link rel="icon" type="image/png" href="images/shoeAura icon.png">
+    <link rel="stylesheet" href="css/user/userlogin.css">
+</head>
+<body>
+    <div class="signup-container">
+        <div class="form-section">
+            <div class="col-sm-7 col-md-9">
+                <a href="/"><div id="colorlib-logo"><img class="logo-header" src="images/new shoeAura.png" alt=""></div></a>
+            </div>
+            <h1>Welcome Back</h1>
+            <form action="/userlogin" id="login-form" method="POST">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                
+                <div class="form-group">
+                    <a href="/forgot-password" class="forgot-password-link">Forgot Password?</a>
+                </div>
+                
+               
+                <button type="submit" class="btn primary-btn">Log In</button>
+            </form>
+            <div class="or-separator">OR</div>
+            <button class="btn google-btn" id="googleLoginBtn"><img class="google-img" src="images/image.png">Sign In with Google</button>
+            <p class="signin-link">Don't have an account? <a href="/signup">Sign Up</a></p>
+        </div>
+        <div class="image-section">
+            <img src="images/item-15.jpg" alt="Signup illustration" />
+        </div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+   
+   document.getElementById('login-form').addEventListener('submit', function(event) {
+    event.preventDefault(); 
+    
+    const emailInput = document.getElementById("email").value;
+    const passwordInput = document.getElementById("password").value;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(emailInput)) {
+         alert('Please enter a valid email address.'); 
+         return false; 
+    }
+    if (!emailInput || !passwordInput) {
+        return  Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Please enter both email and password.",
+        });
+        
+    }
+
+    fetch('/userlogin', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: emailInput, password: passwordInput }), 
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        if(data.isBlocked){
+            Swal.fire({  
+                icon: "error",
+                title: 'Error',
+                text: 'Entry restricted!', 
+            });
+        }
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Login successful!',
+            }).then(() => {
+                if (data.isLogin) {
+                    localStorage.setItem('isLogin', true); 
+                    console.log('isLogin set in localStorage:', localStorage.getItem('isLogin'));
+                    window.location.href = '/'; 
+                }
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message || 'Invalid email or password, please try again.',
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Something went wrong. Please try again.',
+        });
+    });
+});
+</script>
+<script>
+    document.getElementById('googleLoginBtn').addEventListener('click', () => {
+  // Redirect to Google OAuth login route
+  window.location.href = '/auth/google';
+});
+
+// After redirect, check for code in the URL
+window.addEventListener('load', function () {
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get('code');
+
+  if (code) {
+      fetch(`/auth/google/callback?code=${code}`, { method: 'GET' })
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  const isLogin = data.isLogin;
+                  console.log("isLogin:", isLogin);
+                  localStorage.setItem('isLogin', isLogin);
+
+                  if (isLogin) {
+                      window.location.href = '/';  // Redirect to home
+                  }
+              } else {
+                  Swal.fire({
+                      icon: 'error',
+                      title: 'Error',
+                      text: data.message || 'Google login failed.',
+                  });
+              }
+          })
+          .catch(error => {
+              console.error('Error during Google Sign-In:', error);
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: 'Something went wrong. Please try again.',
+              });
+          });
+  }
+});
+    </script>
+</body>
+</html

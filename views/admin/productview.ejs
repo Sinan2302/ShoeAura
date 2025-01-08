@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/admin/dashboard.css">
+    <title>Product Management</title>
+    <link rel="icon" type="image/png" href="/images/shoeAura icon.png">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/usermanagement">User Management</a>
+            <a class="clr" href="/admin/product_management">Products Management</a>
+            <a href="#">Order Management</a>
+            <a href="/admin/category_management">Category Management</a>
+            <a href="#">Coupons Management</a>
+        </div>
+
+        <div class="main-content">
+            <nav class="navbar">
+                <a class="navbar-brand"><div id="colorlib-logo"><img class="logo-header" src="/images/new shoeAura.png" alt=""></div></a>
+            </nav>
+
+            <div class="content">
+                <h1>Product Details</h1>
+                <div class="content">
+                        <div class="overview">
+                            <div class="box total-users">
+                                <h3>Product Name</h3>
+                                <p><strong><%= productData.productname %></strong></p>
+                            </div>
+                            <div class="box total-products">
+                                <h3>Category</h3>
+                                <p><strong>
+                                    <% if (productData.category) { %>
+                                        <%= productData.category.categoryname %>
+                                    <% } else { %>
+                                        N/A
+                                    <% } %>
+                                </strong></p>
+                            </div>
+                            <div class="box total-orders">
+                                <h3>Description</h3>
+                                <p><strong><%= productData.description %></strong></p>
+                            </div>
+                            <div class="box weekly-sales">
+                                <h3>Brand</h3>
+                                <p><strong><%= productData.brand %></strong></p>
+                            </div>
+                        </div>
+                        
+                        <div class="overview">
+                            <div class="box total-users">
+                                <h3>Original Price</h3>
+                                <p><strong>$<%= productData.price %></strong></p>
+                            </div>
+                            <div class="box total-users">
+                                <h3>Sale Price</h3>
+                                <p><strong>$<%= productData.SalePrice %></strong></p>
+                            </div>
+                           
+                            <div class="box total-orders">
+                                <h3>Product Offer</h3>
+                                <p><strong><%= productData.productOffer %>%</strong></p>
+                            </div>
+                            <div class="box weekly-sales">
+                                <h3>Stock Quantity</h3>
+                                <p><strong>
+                                  
+                                    <%= stockQuantity %>
+                                </strong></p>
+                            </div>
+                            
+                        </div>
+
+                        <div class="overview">
+                            <div class="box total-users">
+                                <h3>Product Colors</h3>
+                                <p><strong>
+                                    <% if (productData.colors && productData.colors.length > 0) { %>
+                                        <%= productData.colors.join(", ") %>
+                                    <% } else { %>
+                                        N/A
+                                    <% } %>
+                                </strong></p>
+                            </div>
+                           
+                            <div class="box total-orders">
+                                <h3>Available Sizes</h3>
+                                    <p><strong>
+                                      
+                                        <% if (productData.sizes && Object.keys(productData.sizes).length > 0) { %>
+                                            <% 
+                                                const availableSizes = Object.entries(productData.sizes)
+                                                    .filter(([size, quantity]) => quantity > 0)
+                                                    .map(([size]) => size);
+                                            %>
+                                            <p class="text-warning"><%= availableSizes.join(', ') %></p>
+                                        <% } else { %>
+                                            <li class="text-warning">No sizes available</li>
+                                        <% } %>
+                                       
+                                    </strong></p>
+                            </div>
+                                
+                            <div class="box weekly-sales">
+                                <h3>Status</h3>
+                                <p><strong>
+                                    <%= status %>
+                                </strong></p>
+                            </div>
+                            
+                            
+                        </div>
+                        <div class="box total-users">
+                            <h3>Product Images</h3>
+                            <% if (productData.productImages && productData.productImages.length > 0) { %>
+                                <div class="image-grid">
+                                    <% productData.productImages.forEach((image, index) => { %>
+                                        <div class="image-item">
+                                            <img class="photos" src="/uploads/<%= image %>" alt="Product Image <%= index + 1 %>" />
+                                        </div>
+                                    <% }); %>
+                                </div>
+                            <% } else { %>
+                                <p>No images available</p>
+                            <% } %>
+                        </div>
+                        
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

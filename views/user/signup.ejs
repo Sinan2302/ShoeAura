@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="icon" type="image/png" href="images/shoeAura icon.png">
+    <link rel="stylesheet" href="css/user/userlogin.css">
+</head>
+<body>
+    <div class="signup-container">
+        <div class="form-section">
+            <div class="col-sm-7 col-md-9">
+                <a href="/"><div id="colorlib-logo"><img class="logo-header" src="images/new shoeAura.png" alt=""></div></a>
+            </div>
+            <h1>Get started now</h1>
+            <form action="/signUp" method="POST" onsubmit="return validateForm()">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" placeholder="Enter your name">
+                    <small class="error-message " id="name-error"></small>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email">
+                    <small class="error-message" id="email-error"></small>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password">
+                    <small class="error-message" id="password-error"></small>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Confirm Password</label>
+                    <input type="password" id="confirm-password" name="confirmpassword" placeholder="Confirm your password">
+                    <small class="error-message" id="confirm-password-error"></small>
+                </div>
+                <button type="submit" class="btn primary-btn">Sign Up</button>
+            </form>
+            <div class="or-separator">OR</div>
+            <button class="btn google-btn" id="googleLoginBtn"><img class="google-img" src="images/image.png">Sign In with Google</button>
+            <p class="signin-link">Having an account? <a href="/userlogin">Login</a></p>
+        </div>
+        <div class="image-section">
+            <img src="images/about.jpg" alt="Signup illustration" />
+        </div>
+    </div>
+    <script>
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(el => el.innerText = '');
+        }
+
+        function validateForm() {
+            clearErrors();
+            let isValid = true;
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!name) {
+                document.getElementById('name-error').innerText = 'Please enter your name.';
+                isValid = false;
+            }
+
+            if (!emailRegex.test(email)) {
+                document.getElementById('email-error').innerText = 'Please enter a valid email address.';
+                isValid = false;
+            }
+
+            if (password.length < 6) {
+                document.getElementById('password-error').innerText = 'Password must be at least 6 characters long.';
+                isValid = false;
+            }
+
+            if (password !== confirmPassword) {
+                document.getElementById('confirm-password-error').innerText = 'Passwords do not match.';
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        document.getElementById('googleLoginBtn').addEventListener('click', () => {
+            // Redirect to Google OAuth login route
+            window.location.href = '/auth/google';
+        });
+
+        // After redirect, check for code in the URL
+        window.addEventListener('load', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+
+            if (code) {
+                fetch(`/auth/google/callback?code=${code}`, { method: 'GET' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const isLogin = data.isLogin;
+                            console.log("isLogin:", isLogin);
+                            localStorage.setItem('isLogin', isLogin);
+
+                            if (isLogin) {
+                                window.location.href = '/';  // Redirect to home
+                            }
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message || 'Google login failed.',
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error during Google Sign-In:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Something went wrong. Please try again.',
+                        });
+                    });
+            }
+        });
+    </script>
+</body>
+</html>

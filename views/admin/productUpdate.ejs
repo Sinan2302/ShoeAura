@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/admin/user_management.css">
+    <title>product update</title>
+    <link rel="icon" type="image/png" href="/images/shoeAura icon.png">
+
+  <!--cropper-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/usermanagement">User Management</a>
+            <a  class="clr" href="/admin/product_management">Products Management</a>
+            <a href="#">Order Management</a>
+            <a href="/admin/category_management">Category Management</a>
+            <a href="#">Coupons Management</a>
+        </div>
+
+        <div class="main-content">
+            <nav class="navbar">
+                <a class="navbar-brand"><div id="colorlib-logo"><img class="logo-header" src="/images/new shoeAura.png" alt=""></div></a>
+            </nav>
+
+            <div class="content">
+                <h1>Product Update</h1>
+
+
+                <!-- Add User Form -->
+                <div class="add-user-form">
+                    <h2>Update Product</h2>
+                    <form action="/admin/productUpdate/<%= productData._id %>" id="productForm" method="POST" enctype="multipart/form-data">
+                        <!-- Product Name -->
+                        <div class="form-group">
+                            <label for="Productname">Product name:</label>
+                            <input type="text" id="productname" name="productname" placeholder="Enter Product name" value="<%= productData.productname %>" required>
+                        </div>
+                    
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label for="Description">Description:</label>
+                            <input type="text" id="description" name="description" placeholder="Enter Description" value="<%= productData.description %>" required>
+                        </div>
+                    
+                        <!-- Category -->
+                        <div class="form-group">
+                            <label for="Category">Category:</label>
+                            <input type="text" id="Category" name="category" placeholder="Enter Category" value="<%= productData.category.categoryname %>" required>
+                        </div>
+                    
+                        <!-- Brand -->
+                        <div class="form-group">
+                            <label for="Brand">Brand:</label>
+                            <input type="text" id="Brand" name="brand" placeholder="Enter Brand" value="<%= productData.brand%>" required>
+                        </div>
+                    
+                        <!-- OG Price -->
+                        <div class="form-group">
+                            <label for="OGPrice">Original Price:</label>
+                            <input type="number" id="OGPrice" name="price" placeholder="Enter Price" value="<%= productData.price %>" required>
+                        </div>
+                    
+                        <!-- Sale Price -->
+                        <div class="form-group">
+                            <label for="SalePrice">Sale Price:</label>
+                            <input type="number" id="SalePrice" name="SalePrice" placeholder="Enter Sale Price" value="<%= productData.SalePrice %>" required>
+                        </div>
+                    
+                        <!-- Product Offer -->
+                        <div class="form-group">
+                            <label for="ProductOffer">Product Offer:</label>
+                            <input type="number" id="ProductOffer" name="productOffer" placeholder="Enter Product Offer" min="0" max="100" value="<%= productData.productOffer %>">
+                        </div>
+                    
+                     <!-- Colors -->
+                        <div class="form-group">
+                            <label>Choose Colors:</label>
+                            <% const selectedColors = productData.colors || []; %> <!-- Get selected colors -->
+                            <div>
+                                <label>Red <input type="checkbox" id="RedColor" name="colors[]" value="Red" 
+                                <%= selectedColors.includes('Red') ? 'checked' : '' %>></label>
+                            </div>
+                            <div>
+                                <label>Green <input type="checkbox" id="GreenColor" name="colors[]" value="Green" 
+                                <%= selectedColors.includes('Green') ? 'checked' : '' %>></label>
+                            </div>
+                            <div>
+                                <label>Blue <input type="checkbox" id="BlueColor" name="colors[]" value="Blue" 
+                                <%= selectedColors.includes('Blue') ? 'checked' : '' %>></label>
+                            </div>
+                            <div>
+                                <label>Yellow <input type="checkbox" id="YellowColor" name="colors[]" value="Yellow" 
+                                <%= selectedColors.includes('Yellow') ? 'checked' : '' %>></label>
+                            </div>
+                            <div>
+                                <label>Black <input type="checkbox" id="BlackColor" name="colors[]" value="Black" 
+                                <%= selectedColors.includes('Black') ? 'checked' : '' %>></label>
+                            </div>
+                            <div>
+                                <label>White <input type="checkbox" id="WhiteColor" name="colors[]" value="White" 
+                                <%= selectedColors.includes('White') ? 'checked' : '' %>></label>
+                            </div>
+                            <div>
+                                <label>Brown <input type="checkbox" id="BrownColor" name="colors[]" value="Brown" 
+                                <%= selectedColors.includes('Brown') ? 'checked' : '' %>></label>
+                            </div>
+                        </div>
+
+                        <!-- Shoe Sizes and Quantities -->
+                        <div class="form-group">
+                            <!-- Product Images -->
+                          
+                            <label>Choose Shoe Sizes and Quantities:</label>
+                            <% productData.sizes.forEach((quantity, size) => { %>
+                                <div>
+                                    <label><%= size %>
+                                        <input type="number" name="sizes[<%= size %>]" value="<%= quantity %>" min="0" placeholder="Quantity">
+                                    </label>
+                                </div>
+                            <% }); %>
+                            
+                            <label for="images">Product Images:</label>
+                            <div id="image-preview">
+                                <% if (productData.productImages && productData.productImages.length > 0) { %>
+                                    <% productData.productImages.forEach((image, index) => { %>
+                                        <div class="image-container" data-index="<%= index %>">
+                                            <!-- Display Existing Image -->
+                                            <img src="/uploads/<%= image %>" alt="Uploaded Image" style="width: 100px; margin: 5px;">
+                                            <!-- File Input for Updating Image -->
+                                            <label for="image-file-<%= index %>">Update Image</label>
+                                            <input type="file" id="image-file-<%= index %>" name="productImages" accept="image/*">
+                                            <!-- Hidden Input for Index -->
+                                            <input type="hidden" name="imageIndex[]" value="<%= index %>">
+                                        </div>
+                                    <% }); %>
+                                <% } else { %>
+                                    <p>No images available.</p>
+                                <% } %>
+                            </div>
+                        </div>
+                     <!-- Submit Button -->
+                        <button type="submit" class="btn add-user-btn">Update Product</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const imagePreviewContainer = document.getElementById('image-preview');
+    const imageInput = document.querySelector('input[type="file"][name="productImages"]');
+
+    imagePreviewContainer.addEventListener('change', (event) => {
+        const inputElement = event.target;
+
+        // Check if the changed element is a file input
+        if (inputElement.type === 'file' && inputElement.name === 'productImages') {
+            const file = inputElement.files[0];
+
+            if (file && file.type.startsWith('image/')) {
+                const fileReader = new FileReader();
+
+                // Define what to do when the file is loaded
+                fileReader.onload = (e) => {
+                    // Find the corresponding image container
+                    const container = inputElement.closest('.image-container');
+
+                    if (container) {
+                        const imgElement = container.querySelector('img');
+                        if (imgElement) {
+                            // Update the image source to the selected file's data URL
+                            imgElement.src = e.target.result;
+                        }
+                    }
+                };
+
+                // Read the file as a data URL
+                fileReader.readAsDataURL(file);
+            } else {
+                alert('Please select a valid image file.');
+            }
+        }
+    });
+});
+
+// Handle Form Submit
+document.getElementById('productForm').addEventListener('submit', function(e) {
+    e.preventDefault();  // Prevent the form from submitting immediately
+
+    // Form Data Collection
+    const productId = "<%= productData._id %>";
+    const productname = document.getElementById('productname').value;
+    const description = document.getElementById('description').value;
+    const category = document.getElementById('Category').value;
+    const brand = document.getElementById('Brand').value;
+    const ogPrice = parseFloat(document.getElementById('OGPrice').value);
+    const salePrice = parseFloat(document.getElementById('SalePrice').value);
+    const productOffer = document.getElementById('ProductOffer').value;
+    const colors = Array.from(document.querySelectorAll('input[name="colors[]"]:checked')).map(checkbox => checkbox.value);
+
+    // Check Sale Price validation
+    if (salePrice > ogPrice) {
+        Swal.fire({
+            icon: "error",
+            title: "Validation Error",
+            text: "Sale Price cannot be greater than Original Price."
+        });
+        return;
+    }
+
+    // Gather Sizes & Quantities
+    const sizes = {};
+    document.querySelectorAll('input[name^="sizes["]').forEach(input => {
+        const sizeKey = input.name.match(/\d+/)[0];
+        const quantity = parseInt(input.value, 10) || 0;
+        if (quantity > 0) {
+            sizes[sizeKey] = quantity;
+        }
+    });
+
+    // Create FormData to include files
+    const formData = new FormData(this);  // `this` refers to the form element
+    
+    // Send the FormData to server
+    fetch(`/admin/productUpdate/${productId}`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: "success",
+                title: 'Success',
+                text: 'Product updated successfully',
+            }).then(() => {
+                window.location.href = '/admin/product_management';
+            });
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: 'Oops...',
+                text: data.message || 'Failed to update product',
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: "error",
+            title: 'Oops...',
+            text: 'An unexpected error occurred while updating the product',
+        });
+    });
+});
+        
+    </script>
+
+</body>
+</html>
