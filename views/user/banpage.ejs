@@ -1,13 +1,13 @@
 
 
-<%- include('../../views/partials/user/header.ejs', { isLogin: isLogin }) %>
+<%- include('../../views/partials/user/header.ejs', {isLogin: typeof isLogin !== 'undefined' ? isLogin : false}) %>
   <div class="error">
   <h1>User<img class="halloween-image" src="/images/userban2.png" alt="Ban Image">Banned</h1>
   
   <h2>Session Expires!</h2>
   <p> Go Back to Home!</p>
   <div class="container"> 
-    <a href="/" class="button">Go Home</a>
+    <a href="/" class="button bg-danger">Go Home</a>
   </div>
   
   </div>

@@ -8,29 +8,47 @@ const bcrypt = require('bcrypt');
 const product = require('../../model/productSchema');
 
 
-const usermanagement = async (req, res)=>{
+const usermanagement = async (req, res) => {
     try {
-        const isLogin = req.session.isAdminLoggedIn ? true : false;
+       
 
-        if (!isLogin) {
-            return res.redirect('/admin/adminlogin'); 
-        }
-        const users = await User.find({});
-        res.render('user_management', { users , isLogin });
+        const page = parseInt(req.query.page) || 1;
+        const itemsPerPage = 10;
+        const searchQuery = req.query.search ? req.query.search.trim() : '';
+
+        const searchCriteria = searchQuery
+            ? {
+                  $or: [
+                      { name: { $regex: searchQuery, $options: 'i' } }, 
+                      { email: { $regex: searchQuery, $options: 'i' } },
+                      { phone: { $regex: searchQuery, $options: 'i' } },
+                  ],
+              }
+            : {};
+
+        const totalUsers = await User.countDocuments(searchCriteria);
+        const totalPages = Math.ceil(totalUsers / itemsPerPage);
+
+        const users = await User.find(searchCriteria)
+            .skip((page - 1) * itemsPerPage)
+            .limit(itemsPerPage);
+
+        res.render('user_management', { 
+            users, 
+            currentPage: page,
+            totalPages,
+            searchQuery
+        });
     } catch (error) {
-        console.error('usermanagement loading error:', error.message);
+        console.error('User management loading error:', error.message);
         res.redirect('/pageNotFound');
-    
     }
-}
+};
+
 
 const banUser = async (req, res) => {
     try {
-        const isLogin = req.session.isAdminLoggedIn ? true : false;
-
-        if (!isLogin) {
-            return res.redirect('/admin/adminlogin'); 
-        }
+        
         const userId = req.params.userId;
 
         
@@ -48,7 +66,7 @@ const banUser = async (req, res) => {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        res.json({ success: true, message: 'User banned successfully', user ,isLogin});
+        res.json({ success: true, message: 'User banned successfully', user });
     } catch (error) {
         console.error('Error banning user:', error.message);
         res.status(500).json({ success: false, message: 'An error occurred while banning the user' });
@@ -58,11 +76,7 @@ const banUser = async (req, res) => {
 
 const UnbanUser = async (req, res) => {
     try {
-        const isLogin = req.session.isAdminLoggedIn ? true : false;
-
-        if (!isLogin) {
-            return res.redirect('/admin/adminlogin'); 
-        }
+       
         const userId = req.params.userId;
 
         if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -79,12 +93,13 @@ const UnbanUser = async (req, res) => {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        res.json({ success: true, message: 'User Unbanned successfully', user ,isLogin});
+        res.json({ success: true, message: 'User Unbanned successfully', user });
     } catch (error) {
         console.error('Error Unbanning user:', error.message);
         res.status(500).json({ success: false, message: 'An error occurred while banning the user' });
     }
 };
+
 
 
 

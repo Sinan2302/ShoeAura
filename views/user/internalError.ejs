@@ -1,0 +1,13 @@
+<%- include('../../views/partials/user/header.ejs',{isLogin: typeof isLogin !== 'undefined' ? isLogin : false}) %>
+
+    <div class="error">
+        <h1>500<img class="halloween-image" src="/images/booth.jpg" alt="Halloween Image"></h1>
+        
+        <h2>500! Internal Server Error!</h2>
+        <p>Something went wrong! Please try again later.</p>
+        <div class="container">
+          <a href="/" class="button">Go Home</a>
+        </div>
+    </div>
+
+    <%-include('../../views/partials/user/footer.ejs')%>

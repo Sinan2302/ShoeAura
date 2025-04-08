@@ -8,7 +8,6 @@
 
 	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Rokkitt:100,300,400,700" rel="stylesheet">
-	
 	<!-- Animate.css -->
 	<link rel="stylesheet" href="/css/animate.css">
 	<!-- Icomoon Icon Fonts-->
@@ -41,29 +40,29 @@
     <!--cropper-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-
-	</head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,600,0,0" />
 	<body>
 		
 
-	<div id="page">
-		<nav class="colorlib-nav" role="navigation">
-			<div class="top-menu">
-				<div class="container">
-					<div class="row">
-						<div class="col-sm-7 col-md-9">
-							<a href="/"><div id="colorlib-logo"><img class="logo-header" src="/images/new shoeAura.png" alt=""></div></a>
-						</div>
-						<div class="col-sm-5 col-md-3">
-			            <form action="#" class="search-wrap">
-			               <div class="form-group">
-			                  <input type="search" class="form-control search" placeholder="Search">
-			                  <button class="btn btn-primary submit-search nav-search text-center" type="submit"><i class="icon-search"></i></button>
-			               </div>
-			            </form>
-			         </div>
-		         </div>
-                 <div class="row">
+	<nav class="colorlib-nav" role="navigation">
+		<div class="top-menu">
+			<div class=" nav-container">
+                <div class="row">
+                    <div class="col-sm-7 col-md-9">
+                        <a href="/"><div id="colorlib-logo"><img class="logo-header" src="/images/new shoeAura.png" alt=""></div></a>
+                    </div>
+                    <div class="col-sm-5 col-md-3">
+                        <form id="searchForm" class="search-wrap">
+                            <div class="form-group">
+                                <input type="search" id="searchInput" class="form-control search" placeholder="Search">
+                                <button class="btn btn-primary submit-search nav-search text-center" type="submit"><span class="material-symbols-outlined" style="color: white !important; margin-top: 5px ;">
+                                search
+                                </span></button>
+                            </div>
+                        </form>                              
+                    </div>
+                </div>
+                <div class="row">
                     <div class="col-sm-12 text-left menu-1">
                         <ul>
                             <li class="active"><a href="/">Home</a></li>
@@ -73,10 +72,10 @@
                             
                             <!-- Cart Icon -->
                             <li class="cart">
-                                <a href="cart.html">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-cart2" viewBox="0 0 16 16">
-                                        <path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5M3.14 5l1.25 5h8.22l1.25-5zM5 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0m9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0"/>
-                                    </svg>
+                                <a href="/cart">
+                                    <span class="material-symbols-outlined">
+                                        shopping_cart_checkout
+                                        </span>
                                 </a>
                             </li>
                 
@@ -84,10 +83,9 @@
                             <li class="cart ">
                                 <% if (!isLogin) { %>
                                     <div class="dropdown" id="userout">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-                                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-                                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
-                                        </svg>
+                                        <span class="material-symbols-outlined">
+                                            account_circle
+                                            </span>
                                         <div class="dropdown-menu">
                                             <a href="#">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
@@ -108,24 +106,34 @@
                                     <% } else { %>
                                 
                                     <div class="dropdown personicon" id="userin">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-                                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-                                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
-                                        </svg>
+                                        <span class="material-symbols-outlined">
+                                            account_circle
+                                            </span>
 
                                         <div class="dropdown-menu">
-                                            <a href="#">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
                                                     <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
                                                 </svg>
                                                 <h6> Hello <%= isLogin.name%></h6>
+                                            <a href="/UserProfile">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
+                                                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                                                  </svg>
+                                                My Profile
                                             </a>
-                                            <a href="#">
+                                            <a href="/myOrders">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bag" viewBox="0 0 16 16">
                                                     <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/>
                                                 </svg>  
                                                 My Orders
                                             </a>
+                                            <a href="/wallet">
+                                                <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="#000000">
+                                                    <path d="M200-200v-560 560Zm0 80q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v100h-80v-100H200v560h560v-100h80v100q0 33-23.5 56.5T760-120H200Zm320-160q-33 0-56.5-23.5T440-360v-240q0-33 23.5-56.5T520-680h280q33 0 56.5 23.5T880-600v240q0 33-23.5 56.5T800-280H520Zm280-80v-240H520v240h280Zm-160-60q25 0 42.5-17.5T700-480q0-25-17.5-42.5T640-540q-25 0-42.5 17.5T580-480q0 25 17.5 42.5T640-420Z"/>
+                                                </svg>
+                                                Wallet
+                                            </a>
+
                                             <form action="/logout" method="POST">
                                                 <p>Do you want to logout</p>
                                                 <button type="submit" class="btn btn-danger">Logout</button>
@@ -142,15 +150,16 @@
                 
                             <!-- Heart Icon -->
                             <li class="cart">
-                                <a href="cart.html">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
-                                        <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/>
-                                    </svg>
+                                <a href="/wishlist">
+                                    <span class="material-symbols-outlined">
+                                        favorite
+                                        </span>
                                 </a>
                             </li>
                         </ul>
                     </div>
                 </div>
-                
-				</div>
-			</div>
+            </div>
+		</div>
+    </nav>
+            

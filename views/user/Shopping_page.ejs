@@ -1,141 +1,365 @@
 <%- include('../../views/partials/user/header.ejs', {isLogin: typeof isLogin !== 'undefined' ? isLogin : false}) %>
-
-			<div class="sale">
+			<!-- Rest of your HTML -->
+			<div class="breadcrumbs">
 				<div class="container">
 					<div class="row">
-						<div class="col-sm-8 offset-sm-2 text-center">
-							<div class="row">
-								<div class="owl-carousel2">
-									<div class="item">
-										<div class="col">
-											<h3><a href="#">25% off (Almost) Everything! Use Code: Summer Sale</a></h3>
-										</div>
-									</div>
-									<div class="item">
-										<div class="col">
-											<h3><a href="#">Our biggest sale yet 50% off all summer shoes</a></h3>
-										</div>
-									</div>
-								</div>
-							</div>
+						<div class="col">
+							<p class="bread">
+								<% breadcrumbs.forEach((crumb, index) => { %>
+									<span>
+										<a style="color:tomato;" href="<%= crumb.url %>"><%= crumb.name %></a>
+									</span>
+									<% if (index < breadcrumbs.length - 1) { %> / <% } %>
+								<% }) %>
+							</p>
 						</div>
 					</div>
 				</div>
 			</div>
-		</nav>
+			<div class="container sort-filter">
+		
+				<!-- Sorting Section - Separated -->
+				<div class="d-flex justify-content-between align-items-center flex-wrap ">
+					<!-- Filters Section -->
+					<div class="d-flex gap-3 flex-wrap">
+						<!-- Price Filter Dropdown -->
+						<label for="sortOptions">Filter: </label>
 
-		<div class="breadcrumbs">
-			<div class="container">
-				<div class="row">
-					<div class="col">
-						<p class="bread">
-							<% breadcrumbs.forEach((crumb, index) => { %>
-								<span>
-									<a style="color:tomato;" href="<%= crumb.url %>"><%= crumb.name %></a>
-								</span>
-								<% if (index < breadcrumbs.length - 1) { %> / <% } %>
-							<% }) %>
-						</p>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="breadcrumbs-two">
-			<div class="container">
-				<div class="row">
-					<div class="col">
-						<div class="breadcrumbs-img" style="background-image: url(images/cover-img-1.jpg);">
-							<h2>Men's</h2>
+						<div class="dropdown">
+							<button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+								Price Range
+							</button>
+							<ul class="dropdown-menu p-3">
+								<% let priceRanges = [
+									{ value: "100-500", label: "₹100 - ₹500" },
+									{ value: "501-1000", label: "₹501 - ₹1000" },
+									{ value: "1001-1500", label: "₹1001 - ₹1500" },
+									{ value: "1501-2000", label: "₹1501 - ₹2000" },
+									{ value: "above-2000", label: "Above ₹2000" }
+								]; %>
+								<% priceRanges.forEach(range => { %>
+									<li>
+										<label class="dropdown-item">
+											<input type="checkbox" class="priceFilter" value="<%= range.value %>" 
+											<%= priceRange.includes(range.value) ? 'checked' : '' %> onchange="applyFilters()">
+											<%= range.label %>
+										</label>
+									</li>
+								<% }); %>
+							</ul>
 						</div>
-						<div class="menu text-center">
-							<p><a href="#">New Arrivals</a> <a href="#">Best Sellers</a> <a href="#">Extended Widths</a> <a href="#">Sale</a></p>
+					
+						<!-- Brand Filter Dropdown -->
+						<div class="dropdown">
+							<button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+								Brand
+							</button>
+							<ul class="dropdown-menu p-3">
+								<% brands.forEach(brand => { %>
+									<li>
+										<label class="dropdown-item">
+											<input type="checkbox" class="brandFilter" value="<%= brand %>" 
+											<%= brandFilter.includes(brand) ? 'checked' : '' %> onchange="applyFilters()">
+											<%= brand %>
+										</label>
+									</li>
+								<% }); %>
+							</ul>
+						</div>
+					
+						<!-- Discount Filter Dropdown -->
+						<div class="dropdown">
+							<button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+								Discount
+							</button>
+							<ul class="dropdown-menu p-3">
+								<% let discountOptions = [
+									{ value: "10", label: "10% or more" },
+									{ value: "20", label: "20% or more" },
+									{ value: "30", label: "30% or more" },
+									{ value: "40", label: "40% or more" },
+									{ value: "50", label: "50% or more" },
+									{ value: "above-60", label: "Above 60%" }
+								]; %>
+								<% discountOptions.forEach(option => { %>
+									<li>
+										<label class="dropdown-item">
+											<input type="checkbox" class="discountFilter" value="<%= option.value %>" 
+											<%= discountFilter.includes(option.value) ? 'checked' : '' %> onchange="applyFilters()">
+											<%= option.label %>
+										</label>
+									</li>
+								<% }); %>
+							</ul>
 						</div>
 					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="colorlib-featured">
-			<div class="container">
-				<div class="row">
-					<div id="sneakersDiv" class="col-sm-4 text-center">
-						<div class="featured">
-							<div class="featured-img featured-img-2" style="background-image: url(/images/airmax%202.webp);">
-								<h2 class="text-dark">Sneakers</h2>
-								<p><a href="/category_collection/676160612c9479069c64d7f1" class="btn btn-primary btn-lg">Shop now</a></p>
-							</div>
-						</div>
-					</div>
-					<div id="FormalsDiv" class="col-sm-4 text-center">
-						<div class="featured">
-							<div class="featured-img featured-img-2" style="background-image: url(/images/Cap\ Toe\ Formal\ Shoes3.webp);">
-								<h2 class="text-dark">Formals</h2>
-								<p><a href="/category_collection/6761606e2c9479069c64d7f5" class="btn btn-primary btn-lg">Shop now</a></p>
-							</div>
-						</div>
-					</div>
-					<div id="SportssDiv" class="col-sm-4 text-center">
-						<div class="featured">
-							<div class="featured-img featured-img-2" style="background-image: url(/images/\ Boost\ Runner\ Prime2.webp);">
-								<h2 class="text-dark">Sports</h2>
-								<p><a href="/category_collection/6761607a2c9479069c64d7f9" class="btn btn-primary btn-lg">Shop now</a></p>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="colorlib-product">
-			<div class="container">
-				<div class="row">
-					<div class="col-sm-8 offset-sm-2 text-center colorlib-heading">
-						<h2 class="Collectionhead" >View All Products</h2>
-					</div>
+					
 				
-				</div>
-				<div class="row row-pb-md">
-					<% products.forEach(product => { %>
-						<div class="col-lg-3 mb-4 text-center">
-							<div class="product-entry underdetail border">
-								<a href="/product_details/<%= product.id %>" class="prod-img">
-									<img src="http://localhost:3000/uploads/<%= product.productImages[0] %>" class="img-fluid" alt="<%= product.productname %>">
-								</a>
-								<div class="desc">
-									<h2><a href="/product_details/<%= product.id %>"><%= product.productname %></a></h2>
-									<span class="brand"><%= product.brand %></span>
-									
-									<span class="price">$<%= product.SalePrice %>  <del class="strike">$<%= product.price %></del> <span class="offerper">(<%= product.productOffer%>% off)</span></span>
-								</div>
-							</div>
-						</div>
-					<% }); %>
-					
-					
-					
-				</div>
-				<div class="row">
-					<div class="col-md-12 text-center">
-						<div class="block-27">
-		               <ul>
-						<% if (currentPage > 1) { %>
-							<li><a href="?page=<%= currentPage - 1 %>"><i class="ion-ios-arrow-back"></i></a></li>
-						<% } %>
-		
-						<% for (let i = 1; i <= totalPages; i++) { %>
-							<li class="<%= i === currentPage ? 'active' : '' %>">
-								<a href="?page=<%= i %>"><%= i %></a>
-							</li>
-						<% } %>
-		
-						<% if (currentPage < totalPages) { %>
-							<li><a href="?page=<%= currentPage + 1 %>"><i class="ion-ios-arrow-forward"></i></a></li>
-						<% } %>
-		               </ul>
-		            </div>
+					<!-- Sort Section -->
+					<div class="sort-container">
+						<label for="sortOptions">Sort:</label>
+						<select id="sortOptions" class="form-control select-option" onchange="sortProducts()">
+							<option value="popularity" <%= sortOption === 'popularity' ? 'selected' : '' %>>Popularity</option>
+							<option value="priceLowToHigh" <%= sortOption === 'priceLowToHigh' ? 'selected' : '' %>>Price: low to high</option>
+							<option value="priceHighToLow" <%= sortOption === 'priceHighToLow' ? 'selected' : '' %>>Price: high to low</option>
+							<option value="averageRatings" <%= sortOption === 'averageRatings' ? 'selected' : '' %>>Average ratings</option>
+							<option value="featured" <%= sortOption === 'featured' ? 'selected' : '' %>>Featured</option>
+							<option value="newArrivals" <%= sortOption === 'newArrivals' ? 'selected' : '' %>>New arrivals</option>
+							<option value="nameAsc" <%= sortOption === 'nameAsc' ? 'selected' : '' %>>aA-zZ</option>
+							<option value="nameDesc" <%= sortOption === 'nameDesc' ? 'selected' : '' %>>zZ-aA</option>
+						</select>
 					</div>
 				</div>
 			</div>
-		</div>
+			<div class="breadcrumbs-two">
+				<div class="container">
+					<div class="row">
+						<div class="col">
+							<div class="breadcrumbs-img" style="background-image: url(images/cover-img-1.jpg);">
+								<h2>Men's</h2>
+							</div>
+							<div class="menu text-center">
+								<p><a href="#">New Arrivals</a> <a href="#">Best Sellers</a> <a href="#">Extended Widths</a> <a href="#">Sale</a></p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+	
+			<div class="colorlib-featured">
+				<div class="container">
+					<div class="row">
+						<% if (categories.length === 0) { %>
+							<div class="col-12  text-center">
+								<p>No categories available at the moment. Please check back later.</p>
+							</div>
+						<% } else { %>
+							<% categories.forEach(category => { %>
+							<div id="<%= category.categoryname %>Div" class="col-lg-4 text-center mb-4" >
+								<div class="featured" >
+									<div class="featured-img featured-img-2" style="background-image: url('<%= category.categoryImage %>');">
+										<h2 class="text-dark"><%= category.categoryname %></h2>
+										<p><a href="/category_collection/<%= category._id %>" class="btn btn-primary btn-lg">Shop now</a></p>
+									</div>
+								</div>
+							</div>
+							<% }) %>
+						<% } %>
+					</div>
+					
+				</div>
+			</div>
+	
+			<div class="colorlib-product">
+				<div class="container">
+					<div class="row">
+						<div class="col-sm-8 offset-sm-2 text-center colorlib-heading">
+							<h2 class="Collectionhead" >View All Products</h2>
+						</div>
+					
+					</div>
+					<div class="row row-pb-md">
+						<% products.forEach(product => { %>
+							<div class="col-lg-3 mb-4 text-center">
+								<div class="product-entry underdetail border">
+									<a href="/product_details/<%= product._id %>" class="prod-img">
+										<img src="<%= product.productImages[0].startsWith('http') ? product.productImages[0] : 'http://localhost:3000/uploads/' + product.productImages[0] %>" 
+										class="img-fluid" 
+										alt="<%= product.productname %>">
+									</a>
+									<div class="desc">
+										<a href="/addWishlist/<%- product._id %>" class="wishlist-btn">
+											<% if (wishlistedProductIds.includes(product._id.toString())) { %>
+												<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#EA3323">
+													<path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Z"/>
+												</svg>
+											<% } else { %>
+												<span class="material-symbols-outlined favourited-icon">favorite</span>
+											<% } %>    
+										</a>
+										
+										
+										<h2><a href="/product_details/<%= product._id %>"><%= product.productname %></a></h2>
+										<span class="brand"><%= product.brand %></span>
+										
+										<span class="price">₹<%= product.SalePrice %>  <del class="strike">₹<%= product.price %></del> <span class="offerper">(<%= product.productOffer%>% off)</span></span>
+										
+									</div>
+								</div>
+							</div>
+						<% }); %>
+						
+						
+						
+					</div>
+					<div class="row">
+						<div class="col-md-12 text-center">
+							<div class="block-27">
+								<ul>
+									<% if (currentPage > 1) { %>
+										<li><a href="?page=<%= currentPage - 1 %>&sort=<%= sortOption %>"><i class="ion-ios-arrow-back"></i></a></li>
+									<% } %>
+					
+									<% for (let i = 1; i <= totalPages; i++) { %>
+										<li class="<%= i === currentPage ? 'active' : '' %>">
+											<a href="?page=<%= i %>&sort=<%= sortOption %>"><%= i %></a>
+										</li>
+									<% } %>
+					
+									<% if (currentPage < totalPages) { %>
+										<li><a href="?page=<%= currentPage + 1 %>&sort=<%= sortOption %>"><i class="ion-ios-arrow-forward"></i></a></li>
+									<% } %>
+								</ul>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+		
+<!-- Toastify CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<!-- Toastify JS -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+	<script>
+		function sortProducts() {
+			const sortOption = document.getElementById("sortOptions").value;
+			const currentUrl = new URL(window.location.href);
+			currentUrl.searchParams.set('sort', sortOption);
+			window.location.href = currentUrl.href;
+		}
+
+		function applyFilters() {
+			const sort = document.getElementById("sortOptions").value;
+
+			const getCheckedValues = (className) => {
+				return Array.from(document.querySelectorAll(`.${className}:checked`)).map(input => input.value);
+			};
+
+			const price = getCheckedValues("priceFilter");
+			const brand = getCheckedValues("brandFilter");
+			const discount = getCheckedValues("discountFilter");
+
+			const urlParams = new URLSearchParams(window.location.search);
+			urlParams.set("sort", sort);
+
+			if (price.length > 0) urlParams.set("price", price.join(","));
+			else urlParams.delete("price");
+
+			if (brand.length > 0) urlParams.set("brand", brand.join(","));
+			else urlParams.delete("brand");
+
+			if (discount.length > 0) urlParams.set("discount", discount.join(","));
+			else urlParams.delete("discount");
+
+			window.location.href = window.location.pathname + "?" + urlParams.toString();
+		}
+
+		document.querySelectorAll(".wishlist-btn").forEach((link) => {
+			link.addEventListener("click", async (event) => {
+				event.preventDefault();
+
+				const productId = link.getAttribute("href").split("/").pop();
+
+				try {
+					const response = await fetch(`/AddToWishlist/${productId}`, {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+					});
+
+					const data = await response.json();
+
+					Toastify({
+						text: data.success ? "Added to Wishlist!" : "Already in Wishlist!",
+						duration: 1000,
+						gravity: "top",
+						position: "center",
+						style: { 
+							background: data.success 
+								? "linear-gradient(to right, #00b09b, #96c93d)" 
+								: "linear-gradient(to right, #ff5f6d, #ffc371)" 
+						},
+						stopOnFocus: true,
+					}).showToast();
+
+					setTimeout(() => {
+						window.location.reload();
+					}, 500);
+
+				} catch (error) {
+					Toastify({
+						text: "Something went wrong!",
+						duration: 3000,
+						gravity: "top",
+						position: "center",
+						style: { 
+							background: "linear-gradient(to right, #ff5f6d, #ffc371)" 
+						},
+						stopOnFocus: true,
+					}).showToast();
+				}
+			});
+		});
+
+
+	</script>
+
+<style>
+
+
+
+
+
+/* Sort container */
+.sort-container {
+    text-align: right;
+    margin-bottom: 15px;
+}
+
+/* Sort label and input styling */
+.sort-container label {
+    display: inline-block;
+    margin-right: 10px; /* Space between label and input */
+    font-weight: bold; /* Bold label */
+    color: #172337; /* Color to match your theme */
+}
+
+#sortOptions {
+    display: inline-block;
+    width: auto; /* Adjust width as needed */
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #000000 !important; /* Matched theme color */
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    color: #333;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjMDAwMDAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjUiPjxwYXRoIGQ9Ik0wIDBoNHYySDB6TTAgM2g0djJoLTN2MXptMiA0VjVIMHYxYzAtMS41IDEuNS0xLjUgMS41LTF6Ii8+PC9zdmc+');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+}
+
+/* Adjust font color inside the dropdown */
+#sortOptions option {
+    color: #333;
+}
+
+/* Hover effect for the dropdown */
+#sortOptions:hover {
+    border-color: #4a8bd4; /* Slightly darker shade for hover */
+}
+
+/* Focus effect for the dropdown */
+#sortOptions:focus {
+    border-color: #5ca4f0; /* Matched theme color */
+    outline: none;
+    box-shadow: 0 0 5px rgba(81, 167, 232, 0.5);
+}
+
+
+		</style>
 		<%-include('../../views/partials/user/footer.ejs')%>

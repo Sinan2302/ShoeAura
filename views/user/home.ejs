@@ -11,29 +11,7 @@
     </div>
 <% } %>
 
-			<div class="sale">
-				<div class="container">
-					<div class="row">
-						<div class="col-sm-8 offset-sm-2 text-center">
-							<div class="row">
-								<div class="owl-carousel2">
-									<div class="item">
-										<div class="col">
-											<h3><a href="/Shopping_page">25% off (Almost) Everything! Summer Sale</a></h3>
-										</div>
-									</div>
-									<div class="item">
-										<div class="col">
-											<h3><a href="/Shopping_page">Our biggest sale yet 50% off all summer shoes</a></h3>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</nav>
+			
 		<aside id="colorlib-hero">
 			<div class="flexslider">
 				<ul class="slides">
@@ -104,44 +82,22 @@
 			</div>
 		</div>
 		<div class="colorlib-product">
-			<div class="container-fluid">
-				<div class="row">
-					<div class="col-sm-6 text-center">
-						<div class="featured">
-							<a href="/category_collection/676160612c9479069c64d7f1 " class="featured-img" style="background-image: url(/images/airmax4\ .webp);"></a>
-							<div class="desc">
-								<h2><a href="/category_collection/676160612c9479069c64d7f1"> Sneakers Collection</a></h2>
+			<div class="container">
+				<div class="row category-box">
+					<% categories.forEach(category => { %>
+						<div id="<%= category.categoryname %>Div" class=" text-center mb-4">
+							<div class="featured">
+								<a href="/category_collection/<%= category._id %>" class="featured-img" 
+								   style="background-image: url('<%= category.categoryImage %>');"></a>
+								<div class="desc">
+									<h4><a href="/category_collection/<%= category._id %>"><%= category.categoryname %></a></h4>
+								</div>
 							</div>
 						</div>
-					</div>
-					<div class="col-sm-6 text-center">
-						<div class="featured">
-							<a href="/category_collection/676161122c9479069c64d7fd" class="featured-img" style="background-image: url(/images/Driving\ Loafers4.webp);"></a>
-							<div class="desc">
-								<h2><a href="/category_collection/676161122c9479069c64d7fd"> Loafers Collection</a></h2>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-sm-6 text-center">
-						<div class="featured">
-							<a href="/category_collection/6761606e2c9479069c64d7f5" class="featured-img" style="background-image: url(/images/Cap\ Toe\ Formal\ Shoes2.webp);"></a>
-							<div class="desc">
-								<h2><a href="/category_collection/6761606e2c9479069c64d7f5"> Formals Collection</a></h2>
-							</div>
-						</div>
-					</div>
-					<div class="col-sm-6 text-center">
-						<div class="featured">
-							<a href="/category_collection/6761607a2c9479069c64d7f9" class="featured-img" style="background-image: url(/images/AirFlex\ Running\ Shoes2.webp);"></a>
-							<div class="desc">
-								<h2><a href="/category_collection/6761607a2c9479069c64d7f9"> Sports Shoes Collection</a></h2>
-							</div>
-						</div>
-					</div>
+					<% }); %>
 				</div>
 			</div>
+			
 		</div>
 
 		<div class="colorlib-product">
@@ -154,19 +110,35 @@
 				<div class="row row-pb-md">
 					<% products.forEach(product => { %>
 						<div class="col-lg-3 mb-4 text-center">
-							<div class="product-entry underdetail border">
-								<a href="/product_details/<%= product.id %>" class="prod-img">
-									<img src="http://localhost:3000/uploads/<%= product.productImages[1] %>" class="img-fluid" alt="<%= product.productname %>">
+						  <div class="product-entry underdetail border">
+							<a href="/product_details/<%= product._id %>" class="prod-img">
+								<img src="<%= product.productImages?.[1]?.startsWith('http')
+								? product.productImages[1]
+								: 'http://localhost:3000/uploads/' + (product.productImages?.[1] || 'default.jpg') %>" 
+								class="img-fluid" 
+								alt="<%= product.productname %>">
+							
+							</a>
+							<div class="desc">
+								<a href="/addWishlist/<%- product._id %>" class="wishlist-btn">
+									<% if (wishlistedProductIds.includes(product._id.toString())) { %>
+										<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#EA3323">
+											<path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Z"/>
+										</svg>
+									<% } else { %>
+										<span class="material-symbols-outlined favourited-icon">favorite</span>
+									<% } %>    
 								</a>
-								<div class="desc">
-									<h2><a href="/product_details/<%= product.id %>"><%= product.productname %></a></h2>
-									<span class="brand"><%= product.brand %></span>
-									
-									<span class="price">$<%= product.SalePrice %>  <del class="strike">$<%= product.price %></del> <span class="offerper">(<%= product.productOffer%>% off)</span></span>
-								</div>
+							  <h2><a href="/product_details/<%= product._id %>"><%= product.productname %></a></h2>
+							  <span class="brand"><%= product.brand %></span>
+							  <span class="price">₹<%= product.SalePrice %>  <del class="strike">₹<%= product.price %></del> 
+							  <span class="offerper">(<%= product.productOffer%>% off)</span></span>
+							  
 							</div>
+						  </div>
 						</div>
-					<% }); %>
+					  <% }); %>
+					  
 					
 				</div>
 			</div>
@@ -180,4 +152,56 @@
 			</div>
 		</div>
 
+		<!-- Toastify CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<!-- Toastify JS -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script>
+document.querySelectorAll(".wishlist-btn").forEach((link) => {
+			link.addEventListener("click", async (event) => {
+				event.preventDefault();
+
+				const productId = link.getAttribute("href").split("/").pop();
+
+				try {
+					const response = await fetch(`/AddToWishlist/${productId}`, {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+					});
+
+					const data = await response.json();
+
+					Toastify({
+						text: data.success ? "Added to Wishlist!" : "Already in Wishlist!",
+						duration: 1000,
+						gravity: "top",
+						position: "center",
+						style: { 
+							background: data.success 
+								? "linear-gradient(to right, #00b09b, #96c93d)" 
+								: "linear-gradient(to right, #ff5f6d, #ffc371)" 
+						},
+						stopOnFocus: true,
+					}).showToast();
+
+					setTimeout(() => {
+						window.location.reload();
+					}, 500);
+
+				} catch (error) {
+					Toastify({
+						text: "Something went wrong!",
+						duration: 3000,
+						gravity: "top",
+						position: "center",
+						style: { 
+							background: "linear-gradient(to right, #ff5f6d, #ffc371)" 
+						},
+						stopOnFocus: true,
+					}).showToast();
+				}
+			});
+		});
+
+</script>
 		<%-include('../../views/partials/user/footer.ejs')%>

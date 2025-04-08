@@ -1,0 +1,178 @@
+<%- include('../../views/partials/user/header.ejs', {isLogin: typeof isLogin !== 'undefined' ? isLogin : false}) %>
+
+<% if (isLogin )  { %>
+	<% if (wishlistlength )  { %>
+	<div class="breadcrumbs">
+		<div class="container">
+			<div class="row">
+				<div class="col">
+					<p class="bread">
+						<% breadcrumbs.forEach((crumb, index) => { %>
+							<span>
+								<a style="color:tomato;" href="<%= crumb.url %>"><%= crumb.name %></a>
+							</span>
+							<% if (index < breadcrumbs.length - 1) { %> / <% } %>
+						<% }) %>
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+		<div class="colorlib-product">
+			<div class="container">
+				<div class="row row-pb-lg">
+					<div class="col-md-12">
+						<div class="product-name d-flex">
+							<div class="one-forth text-left px-4">
+								<span>Product Details</span>
+							</div>
+							<div class="one-eight text-center">
+								<span>Sale Price</span>
+							</div>
+							<div class="one-eight text-center">
+								<span>discount</span>
+							</div>
+							<div class="one-eight text-center">
+								<span>View Product</span>
+							</div>
+							<div class="one-eight text-center px-4">
+								<span>Remove</span>
+							</div>
+						</div>
+
+						<% wishlistItems.forEach(product => { %>
+							<div class="product-cart d-flex">
+								<div class="one-forth">
+									<a href="/product_details/<%= product.productId?._id %>">
+										<div class="product-img" 
+											style="background-image: url('<%= product.productId?.productImages?.length ? (product.productId.productImages[0].includes("https") ? product.productId.productImages[0] : "/uploads/" + product.productId.productImages[0]) : "/default-image.jpg" %>');">
+										</div>
+									</a>
+									<div class="display-tc">
+										<h3><%= product.productId?.productname || 'Unknown Product' %></h3>
+									</div>
+								</div>
+								<div class="one-eight text-center">
+									<div class="display-tc">
+										<span class="price">$<%= product.productId?.SalePrice || 'N/A' %></span>
+
+									</div>
+								</div>
+								<div class="one-eight text-center">
+									<div class="display-tc">
+										<span class="offerper"><%= product.productId?.productOffer || 'N/A' %>%</span>
+									</div>
+								</div>
+								<div class="one-eight text-center">
+									<div class="display-tc">
+										<a href="/product_details/<%= product.productId?._id %>">
+											<button class="btn btn-primary">vew</button>
+										</a>	
+									</div>
+								</div>
+								<div class="one-eight text-center">
+									<div class="display-tc">
+										<form action="/removeWishlist/<%= product._id %>" method="DELETE">
+											<input type="hidden" name="productId" value="<%= product.productId?._id %>">
+											<button type="submit" class="removeBtn">X</button>
+										</form>
+									</div>
+								</div>
+							</div>
+						<% })%>
+					</div>
+				</div>
+			</div>
+		</div>
+		<% } else { %>
+			<div class="error">
+				<h1>4<img class="halloween-image" src="images/booth.jpg" alt="Halloween Image">4</h1>
+				
+				<h2>Boo! Missing Wishlistd items!</h2>
+				<p>Whoops! Add Some product to the Wishlist! </p>
+				<div class="container">
+				<a href="/Shopping_page" class="button bg-danger">Shopping page</a>
+				</div>
+				</div>
+				<% } %>	
+	<% } else { %>
+		<div class="error">
+			<h1>4<img class="halloween-image" src="images/booth.jpg" alt="Halloween Image">4</h1>
+			
+			<h2>Boo! Missing Wishlisted items!</h2>
+			<p>Whoops! Login to see the items you added previously!</p>
+			<div class="container">
+			  <a href="/userlogin" class="button bg-danger">Login</a>
+			</div>
+			</div>
+	<% } %>	
+
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+    const removeButtons = document.querySelectorAll(".removeBtn");
+
+    removeButtons.forEach(button => {
+        button.addEventListener("click", async function (event) {
+            event.preventDefault();
+
+            const form = this.closest("form");
+            const productId = form.querySelector("input[name='productId']").value;
+            const url = `/removeWishlist/${productId}`;
+
+            try {
+                const response = await fetch(url, {
+                    method: "DELETE", 
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    Toastify({
+                        text: data.message,
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "center",
+                        backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
+                    }).showToast();
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                } else {
+                    Toastify({
+                        text: data.message,
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "center",
+                        backgroundColor: "#3498db",
+                    }).showToast();
+                }
+            } catch (error) {
+                Toastify({
+                    text: "Something went wrong. Please try again.",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                }).showToast();
+            }
+        });
+    });
+});
+
+
+</script>
+		
+
+		<%-include('../../views/partials/user/footer.ejs')%>

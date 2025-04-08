@@ -1,234 +1,431 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/admin/user_management.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/admin/user_management.css" />
     <title>Add product</title>
-    <link rel="icon" type="image/png" href="/images/shoeAura icon.png">
+    <link rel="icon" type="image/png" href="/images/shoeAura icon.png" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+    <style>
+        #loadingSpinner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
 
+.spinner {
+    position: relative;
+    border: 8px solid rgba(76, 168, 88, 0.3); 
+    border-top: 8px solid #4CA858; 
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    animation: spin 1.5s linear infinite;
+}
 
+.center-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px; /* Adjust as needed */
+    height: 60px; /* Adjust as needed */
+    border-radius: 50%;
+    object-fit: cover; /* Ensures image maintains aspect ratio */
+}
 
-</head>
-<body>
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+        .crop-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+            border: 2px dashed #ddd;
+            max-width: 400px;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
     
+        .crop-container img {
+            max-width: 400px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+    
+        .btn {
+            padding: 10px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    
+        .btn-primary {
+            background-color: #007bff;
+            color: #fff;
+        }
+    
+        .btn-danger {
+            background-color: #dc3545;
+            color: #fff;
+        }
+    
+        .crop-preview {
+            display: flex;
+            max-width: 200px;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            border: 2px solid #ddd;
+            padding: 10px;
+            border-radius: 10px;
+        }
+    
+        .crop-preview canvas {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+    </style>
+    
+      
+  </head>
+  <body>
     <div class="container">
-        <div class="sidebar">
-            <a href="/admin/dashboard">Dashboard</a>
-            <a href="/admin/usermanagement">User Management</a>
-            <a class="clr" href="/admin/product_management">Products Management</a>
-            <a href="#">Order Management</a>
-            <a href="/admin/category_management">Category Management</a>
-            <a href="#">Coupons Management</a>
-        </div>
+      <div class="sidebar">
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/admin/usermanagement">User Management</a>
+        <a class="clr" href="/admin/product_management">Products Management</a>
+        <a href="/admin/order_management">Order Management</a>
+        <a href="/admin/category_management">Category Management</a>
+        <a href="/admin/coupon_management">Coupons Management</a>
+      </div>
 
-        <div class="main-content">
-            <nav class="navbar">
-                <a class="navbar-brand"><div id="colorlib-logo"><img class="logo-header" src="/images/new shoeAura.png" alt=""></div></a>
-               
-            </nav>
+      <div class="main-content">
+        <nav class="navbar">
+          <a class="navbar-brand"
+            ><div id="colorlib-logo">
+              <img
+                class="logo-header"
+                src="/images/new shoeAura.png"
+                alt=""
+              /></div
+          ></a>
+        </nav>
 
-            <div class="content">
-                <h1>Product Management</h1>
+        <div class="content">
+          <h1>Product Management</h1>
 
-                <!-- Add Product Form -->
-                <div class="add-user-form">
-                    <h2>Add Product</h2>
-                    <form action="/admin/addproduct" id="addProductForm" method="POST" enctype="multipart/form-data">
-                        <!-- Product Name -->
-                        <div class="form-group">
-                            <label for="Productname">Product name:</label>
-                            <input type="text" id="Productname" name="productname" placeholder="Enter Product name" required>
-                        </div>
-                    
-                        <!-- Description -->
-                        <div class="form-group">
-                            <label for="Description">Description:</label>
-                            <input type="text" id="description" name="description" placeholder="Enter Description" required>
-                        </div>
-                    
-                        <!-- Category -->
-                        <div class="form-group">
-                            <label for="Category">Category:</label>
-                            <input type="text" id="Category" name="category" placeholder="Enter Category" required>
-                        </div>
-                    
-                        <!-- Brand -->
-                        <div class="form-group">
-                            <label for="Brand">Brand:</label>
-                            <input type="text" id="Brand" name="brand" placeholder="Enter Brand" required>
-                        </div>
-                    
-                        <!-- OG Price -->
-                        <div class="form-group">
-                            <label for="OGPrice">Original Price:</label>
-                            <input type="number" id="OGPrice" name="price" placeholder="Enter Price" required>
-                        </div>
-                    
-                        <!-- Sale Price -->
-                        <div class="form-group">
-                            <label for="SalePrice">Sale Price:</label>
-                            <input type="number" id="SalePrice" name="SalePrice" placeholder="Enter Sale Price" required>
-                        </div>
-                    
-                        <!-- Product Offer -->
-                        <div class="form-group">
-                            <label for="ProductOffer">Product Offer:</label>
-                            <input type="number" id="ProductOffer" name="productOffer" placeholder="Enter Product Offer" min="0" max="100">
-                        </div>
-                                       
-                    
-                        <div class="form-group">
-                            <label>Choose Colors:</label>
-                            <div>
-                                <label for="RedColor">Red</label>
-                                <input type="checkbox" id="RedColor" name="colors[]" value="Red">
-                            </div>
-                            <div>
-                                <label for="GreenColor">Green</label>
-                                <input type="checkbox" id="GreenColor" name="colors[]" value="Green">
-                            </div>
-                            <div>
-                                <label for="BlueColor">Blue</label>
-                                <input type="checkbox" id="BlueColor" name="colors[]" value="Blue">
-                            </div>
-                            <div>
-                                <label for="YellowColor">Yellow</label>
-                                <input type="checkbox" id="YellowColor" name="colors[]" value="Yellow">
-                            </div>
-                            <div>
-                                <label for="BlackColor">Black</label>
-                                <input type="checkbox" id="BlackColor" name="colors[]" value="Black">
-                            </div>
-                            <div>
-                                <label for="WhiteColor">White</label>
-                                <input type="checkbox" id="WhiteColor" name="colors[]" value="White">
-                            </div>
-                            <div>
-                                <label for="BrownColor">Brown</label>
-                                <input type="checkbox" id="BrownColor" name="colors[]" value="Brown">
-                            </div>
-                        </div>
-                        
+          <!-- Add Product Form -->
+          <div class="add-user-form">
+            <h2>Add Product</h2>
+            <form
+              id="addProductForm"
+              enctype="multipart/form-data"
+            >
+              <!-- Product Name -->
+              <div class="form-group">
+                <label for="Productname">Product name:</label>
+                <input
+                  type="text"
+                  id="Productname"
+                  name="productname"
+                  placeholder="Enter Product name"
+                  required
+                />
+              </div>
 
-                        <!-- Shoe Sizes and Quantities -->
-                        <div class="form-group">
-                            <!-- Product Images -->
-                            <label for="images">Product Images:</label>
-                            <input type="file" id="images" name="productImages" accept="image/*" multiple required>
+              <!-- Description -->
+              <div class="form-group">
+                <label for="Description">Description:</label>
+                <input
+                  type="text"
+                  id="description"
+                  name="description"
+                  placeholder="Enter Description"
+                  required
+                />
+              </div>
 
-                            <label>Choose Shoe Sizes and Quantities:</label>
-                            
-                            <div>
-                                <label>37
-                                    <input type="number" id="UKSize37" name="sizes[37]" min="0" placeholder="Quantity" >
-                                </label>
-                            </div>
-                            <div>
-                                <label>38
-                                    <input type="number" id="UKSize38" name="sizes[38]" min="0" placeholder="Quantity" >
-                                </label>
-                            </div>
-                            <div>
-                                <label>39
-                                    <input type="number" id="UKSize39" name="sizes[39]" min="0" placeholder="Quantity" >
-                                </label>
-                            </div>
-                            <div>
-                                <label>40
-                                    <input type="number" id="UKSize40" name="sizes[40]" min="0" placeholder="Quantity" >
-                                </label>
-                            </div>
-                            <div>
-                                <label>41
-                                    <input type="number" id="UKSize41" name="sizes[41]" min="0" placeholder="Quantity" >
-                                </label>
-                            </div>
-                            <div>
-                                <label>42
-                                    <input type="number" id="UKSize42" name="sizes[42]" min="0" placeholder="Quantity" >
-                                </label>
-                            </div>
-                        </div>
-                        <!-- Submit Button -->
-                        <button type="submit" class="btn add-user-btn">Add Product</button>
-                    </form>
-                    
+              <!-- Category -->
+              <div class="form-group">
+                <label for="Category">Category:</label>
+                <select id="Category" class="dropdownOrsize" name="category" required>
+                  <option value=""  disabled selected>Select Category</option>
+                  <% categoryData.forEach(function(category) { %>
+                  <option   value="<%= category._id %>">
+                    <%= category.categoryname %>
+                  </option>
+                  <% }); %>
+                </select>
+              </div>
+
+              <!-- Brand -->
+              <div class="form-group">
+                <label for="Brand">Brand:</label>
+                <input
+                  type="text"
+                  id="Brand"
+                  name="brand"
+                  placeholder="Enter Brand"
+                  required
+                />
+              </div>
+
+              <!-- OG Price -->
+              <div class="form-group">
+                <label for="OGPrice">Original Price:</label>
+                <input
+                  type="number"
+                  id="OGPrice"
+                  name="price"
+                  placeholder="Enter Price"
+                  required
+                />
+              </div>             
+
+              <!-- Product Offer -->
+              <div class="form-group">
+                <label for="ProductOffer">Product Offer:</label>
+                <input
+                  type="number"
+                  id="ProductOffer"
+                  name="productOffer"
+                  placeholder="Enter Product Offer"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="form-group">
+                <label for="ProductOffer">Product Color:</label>
+                <input
+                  type="text"
+                  id="colors"
+                  name="colors"
+                  placeholder="Enter Product Color"
+                />
+              </div>
+
+              <!-- Shoe Sizes and Quantities -->
+              <div class="form-group">
+                <label>Product Sizes and Quantities:</label>
+                <div id="size-quantity-container"></div>
+                <button type="button" class="dropdownOrsize" id="add-size-quantity">
+                  Add Size and Quantity
+                </button>
+              </div>
+
+
+              <!--upload images-->
+              <div class="mb-4">
+                <label class="form-label text-white">Upload Images</label>
+                <div id="fileInputsContainer"></div>
+                <div id="cropperContainers"></div>
+              </div>
+              <div id="loadingSpinner" style="display: none;">
+                <div class="spinner">
+                    <img src="/images/shoeAura icon.png" alt="Loading" class="center-image">
                 </div>
             </div>
+              <!-- Submit Button -->
+              <button type="submit" class="btn add-user-btn">
+                Add Product
+              </button>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
-        
-        document.getElementById("addProductForm").addEventListener('submit',function(e){
-            e.preventDefault()
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-            const productname = document.getElementById('Productname').value
-            const description = document.getElementById('description').value
-            const category = document.getElementById('Category').value
-            const brand = document.getElementById('Brand').value
-            const ogPrice = parseFloat(document.getElementById('OGPrice').value);
-            const salePrice = parseFloat(document.getElementById('SalePrice').value);
-            const productOffer = document.getElementById('ProductOffer').value
-            const colors = Array.from(document.querySelectorAll('input[name="colors[]"]:checked')).map(checkbox => checkbox.value);
-            const productImage = document.getElementById('images').value
-            const sizes = {};
-            document.querySelectorAll('input[name^="sizes["]').forEach(input => {
-                const sizeKey = input.name.match(/\d+/)[0];
-                const quantity = parseInt(input.value, 10) || 0; 
-                if (quantity > 0) {
-                    sizes[sizeKey] = quantity;
-                }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
+
+
+  
+<script>
+   document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('addProductForm');
+    const fileInputsContainer = document.getElementById('fileInputsContainer');
+    const cropperContainer = document.getElementById('cropperContainers');
+    const croppers = [];
+    const maxImages = 4;
+    const croppedImages = new Map();
+
+    // Dynamically create file input fields
+    for (let i = 1; i <= maxImages; i++) {
+        const div = document.createElement('div');
+        div.classList.add('mb-3');
+        div.innerHTML = `
+            <input type="file" id="upload${i}" accept="image/*" onchange="handleSingleImage(event, ${i})" />
+            <label for="upload${i}" class="form-label text-white">Image ${i}</label>
+        `;
+        fileInputsContainer.appendChild(div);
+    }
+
+    // Handle single image upload
+    window.handleSingleImage = (event, index) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const existingCropDiv = document.getElementById(`crop-container-${index}`);
+        if (existingCropDiv) existingCropDiv.remove();
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const div = document.createElement('div');
+            div.classList.add('crop-container');
+            div.id = `crop-container-${index}`;
+
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.id = `cropImage${index}`;
+            div.appendChild(img);
+
+            const previewButton = document.createElement('button');
+            previewButton.textContent = 'Preview Cropped Image';
+            previewButton.classList.add('btn', 'btn-primary', 'mt-2');
+            previewButton.type = 'button'; 
+            previewButton.onclick = () => previewCroppedImage(index);
+            div.appendChild(previewButton);
+
+            cropperContainer.appendChild(div);
+
+            // Initialize Cropper.js
+            const cropper = new Cropper(img, { aspectRatio: 1, viewMode: 1 });
+            croppers[index - 1] = cropper;
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const previewCroppedImage = (index) => {
+        const cropper = croppers[index - 1];
+        if (!cropper) return;
+
+        const canvas = cropper.getCroppedCanvas();
+        canvas.toBlob((blob) => {
+            if (blob) {
+                croppedImages.set(index, blob);
+
+                const previewDiv = document.createElement('div');
+                previewDiv.classList.add('crop-preview');
+                const imgElement = document.createElement('img');
+                imgElement.src = URL.createObjectURL(blob);
+                imgElement.style.maxWidth = '200px';
+                imgElement.style.height = 'auto';
+                previewDiv.appendChild(imgElement);
+
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Remove Cropped Image';
+                removeButton.classList.add('btn', 'btn-danger', 'mt-2');
+                removeButton.type = 'button'; 
+                removeButton.onclick = () => {
+                    previewDiv.remove();
+                    croppedImages.delete(index);
+                };
+                previewDiv.appendChild(removeButton);
+
+                cropperContainer.appendChild(previewDiv);
+                const cropContainer = document.getElementById(`crop-container-${index}`);
+                if (cropContainer) cropContainer.remove();
+            }
+        });
+    };
+
+    // Handle dynamic size/quantity addition
+    const container = document.getElementById('size-quantity-container');
+    const addBtn = document.getElementById('add-size-quantity');
+    addBtn.addEventListener('click', () => {
+        const div = document.createElement('div');
+        div.classList.add('form-group');
+        div.innerHTML = `
+            <label>Size:
+                <input type="text" name="sizes[][size]" placeholder="Enter size" required>
+            </label>
+            <label>Quantity:
+                <input type="number" name="sizes[][quantity]" min="0" placeholder="Enter quantity" required>
+            </label>`;
+        container.appendChild(div);
+    });
+
+    // Handle form submission
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        document.getElementById('loadingSpinner').style.display = 'flex';
+
+        const formData = new FormData(form);
+        const sizes = {};
+        const sizeInputs = document.querySelectorAll('input[name="sizes[][size]"]');
+        const quantityInputs = document.querySelectorAll('input[name="sizes[][quantity]"]');
+
+        sizeInputs.forEach((input, index) => {
+            const sizeKey = input.value.trim().toLowerCase();
+            const quantity = parseInt(quantityInputs[index].value, 10) || 0;
+            if (sizeKey && quantity > 0) {
+                sizes[sizeKey] = quantity;
+            }
+        });
+
+        // Add sizes to FormData
+        formData.set('sizes', JSON.stringify(sizes));
+
+        // Add cropped images to FormData
+        croppedImages.forEach((blob, index) => {
+            formData.append('croppedImages', blob, `image_${index}.png`);
+        });
+
+        // Submit FormData
+        try {
+            const response = await fetch('/admin/addproduct', {
+                method: 'POST',
+                body: formData,
             });
 
-            if (salePrice > ogPrice) {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Validation Error",
-                        text: "Sale Price cannot be greater than Original Price."
-                    });
-                    return;
-                }
-            const formData = new FormData(document.getElementById("addProductForm"));
+            const data = await response.json();
+            document.getElementById('loadingSpinner').style.display = 'none';
 
-            fetch('/admin/addproduct', {
-                method: 'POST',
-                body: formData
-            })
-            
-            .then(response => response.json())
-            .then(data =>{
-                console.log(data);
-                if(data.success){
-                    Swal.fire({
-                        icon:"success",
-                        title:"Success",
-                        text:"Product Added successfully"
-                    })
-                    .then(()=>{
-                        window.location.href = '/admin/product_management'
-                    })
-                }else{
-                    Swal.fire({
-                        icon:"error",
-                        title:"Error",
-                        text:"Product Adding Failed"
-                    })
-                }
-            }).catch(error=>{
-                console.error("Error",error)
+            if (data.success) {
                 Swal.fire({
-                    icon:"error",
-                    title:"Error",
-                    text:"Server Error Occured"
-                })
-            })
-        })
+                    icon: 'success',
+                    title: 'Success',
+                    text: data.message,
+                }).then(() => {
+                    window.location.href = '/admin/product_management';
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message,
+                });
+            }
+        } catch (error) {
+            console.error('Error', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Server Error Occurred',
+            });
+        }
+    });
+});
 
     </script>
+      
 </body>
 </html>

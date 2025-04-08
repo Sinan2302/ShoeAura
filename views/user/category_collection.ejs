@@ -1,29 +1,10 @@
 <%- include('../../views/partials/user/header.ejs', {isLogin: typeof isLogin !== 'undefined' ? isLogin : false}) %>
 
-			<div class="sale">
-				<div class="container">
-					<div class="row">
-						<div class="col-sm-8 offset-sm-2 text-center">
-							<div class="row">
-								<div class="owl-carousel2">
-									<div class="item">
-										<div class="col">
-											<h3><a href="#">25% off (Almost) Everything! Use Code: Summer Sale</a></h3>
-										</div>
-									</div>
-									<div class="item">
-										<div class="col">
-											<h3><a href="#">Our biggest sale yet 50% off all summer shoes</a></h3>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</nav>
 
+		
+	
+
+		
 		<div class="breadcrumbs">
 			<div class="container">
 				<div class="row">
@@ -37,6 +18,101 @@
 							<% }) %>
 						</p>
 					</div>
+				</div>
+			</div>
+		</div>
+		<div class="container sort-filter">
+		
+			<!-- Sorting Section - Separated -->
+			<div class="d-flex justify-content-between align-items-center flex-wrap ">
+				<!-- Filters Section -->
+				<div class="d-flex gap-3 flex-wrap">
+					<!-- Price Filter Dropdown -->
+					<label for="sortOptions">Filter: </label>
+
+					<div class="dropdown">
+						<button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Price Range
+						</button>
+						<ul class="dropdown-menu p-3">
+							<% let priceRanges = [
+								{ value: "100-500", label: "₹100 - ₹500" },
+								{ value: "501-1000", label: "₹501 - ₹1000" },
+								{ value: "1001-1500", label: "₹1001 - ₹1500" },
+								{ value: "1501-2000", label: "₹1501 - ₹2000" },
+								{ value: "above-2000", label: "Above ₹2000" }
+							]; %>
+							<% priceRanges.forEach(range => { %>
+								<li>
+									<label class="dropdown-item">
+										<input type="checkbox" class="priceFilter" value="<%= range.value %>" 
+										<%= priceRange.includes(range.value) ? 'checked' : '' %> onchange="applyFilters()">
+										<%= range.label %>
+									</label>
+								</li>
+							<% }); %>
+						</ul>
+					</div>
+				
+					<!-- Brand Filter Dropdown -->
+					<div class="dropdown">
+						<button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Brand
+						</button>
+						<ul class="dropdown-menu p-3">
+							<% brands.forEach(brand => { %>
+								<li>
+									<label class="dropdown-item">
+										<input type="checkbox" class="brandFilter" value="<%= brand %>" 
+										<%= brandFilter.includes(brand) ? 'checked' : '' %> onchange="applyFilters()">
+										<%= brand %>
+									</label>
+								</li>
+							<% }); %>
+						</ul>
+					</div>
+				
+					<!-- Discount Filter Dropdown -->
+					<div class="dropdown">
+						<button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Discount
+						</button>
+						<ul class="dropdown-menu p-3">
+							<% let discountOptions = [
+								{ value: "10", label: "10% or more" },
+								{ value: "20", label: "20% or more" },
+								{ value: "30", label: "30% or more" },
+								{ value: "40", label: "40% or more" },
+								{ value: "50", label: "50% or more" },
+								{ value: "above-60", label: "Above 60%" }
+							]; %>
+							<% discountOptions.forEach(option => { %>
+								<li>
+									<label class="dropdown-item">
+										<input type="checkbox" class="discountFilter" value="<%= option.value %>" 
+										<%= discountFilter.includes(option.value) ? 'checked' : '' %> onchange="applyFilters()">
+										<%= option.label %>
+									</label>
+								</li>
+							<% }); %>
+						</ul>
+					</div>
+				</div>
+				
+			
+				<!-- Sort Section -->
+				<div class="sort-container">
+					<label for="sortOptions">Sort:</label>
+					<select id="sortOptions" class="form-control select-option" onchange="sortProducts()">
+						<option value="popularity" <%= sortOption === 'popularity' ? 'selected' : '' %>>Popularity</option>
+						<option value="priceLowToHigh" <%= sortOption === 'priceLowToHigh' ? 'selected' : '' %>>Price: low to high</option>
+						<option value="priceHighToLow" <%= sortOption === 'priceHighToLow' ? 'selected' : '' %>>Price: high to low</option>
+						<option value="averageRatings" <%= sortOption === 'averageRatings' ? 'selected' : '' %>>Average ratings</option>
+						<option value="featured" <%= sortOption === 'featured' ? 'selected' : '' %>>Featured</option>
+						<option value="newArrivals" <%= sortOption === 'newArrivals' ? 'selected' : '' %>>New arrivals</option>
+						<option value="nameAsc" <%= sortOption === 'nameAsc' ? 'selected' : '' %>>aA-zZ</option>
+						<option value="nameDesc" <%= sortOption === 'nameDesc' ? 'selected' : '' %>>zZ-aA</option>
+					</select>
 				</div>
 			</div>
 		</div>
@@ -72,48 +148,20 @@
 		<div class="colorlib-featured">
 			<div class="container">
 				<div class="row">
-					
-					<% if (category !== '/category_collection/676160612c9479069c64d7f1') { %>
-						<div id="sneakersDiv" class="col-sm-4 text-center">
+					<% categories.forEach(category => { %>
+						<div id="<%= category.categoryname %>Div" class="col-sm-4 text-center mb-4">
 							<div class="featured">
-								<div class="featured-img featured-img-2" style="background-image: url(/images/airmax%202.webp);">
-									<h2 class="text-dark">Sneakers</h2>
-									<p><a href="/category_collection/676160612c9479069c64d7f1" class="btn btn-primary btn-lg">Shop now</a></p>
+								<div class="featured-img featured-img-2" style="background-image: url('<%= category.categoryImage %>');">
+									<h2 class="text-dark"><%= category.categoryname %></h2>
+									<p>
+										<a href="/category_collection/<%= category._id %>" class="btn btn-primary btn-lg">Shop now</a>
+									</p>
 								</div>
 							</div>
 						</div>
-					<% } %>
-					<% if (category !== '/category_collection/6761606e2c9479069c64d7f5') { %>	
-					<div id="FormalsDiv" class="col-sm-4 text-center">
-						<div class="featured">
-							<div class="featured-img featured-img-2" style="background-image: url(/images/Cap\ Toe\ Formal\ Shoes3.webp);">
-								<h2 class="text-dark">Formals</h2>
-								<p><a href="/category_collection/6761606e2c9479069c64d7f5" class="btn btn-primary btn-lg">Shop now</a></p>
-							</div>
-						</div>
-					</div>
-					<% } %>
-					<% if (category !== '/category_collection/6761607a2c9479069c64d7f9') { %>	
-					<div id="SportssDiv" class="col-sm-4 text-center">
-						<div class="featured">
-							<div class="featured-img featured-img-2" style="background-image: url(/images/\ Boost\ Runner\ Prime2.webp);">
-								<h2 class="text-dark">Sports</h2>
-								<p><a href="/category_collection/6761607a2c9479069c64d7f9" class="btn btn-primary btn-lg">Shop now</a></p>
-							</div>
-						</div>
-					</div>
-					<% } %>
-					<% if (category !== '/category_collection/676163f22c9479069c64d80d') { %>	
-					<div id="BootsDiv" class="col-sm-4 text-center">
-						<div class="featured">
-							<div class="featured-img featured-img-2" style="background-image: url(/images/Combat\ Lace-Up\ Boots3.webp);">
-								<h2 class="text-dark">Boots</h2>
-								<p><a href="/category_collection/676163f22c9479069c64d80d" class="btn btn-primary btn-lg">Shop now</a></p>
-							</div>
-						</div>
-					</div>
-					<% } %>
+					<% }); %>
 				</div>
+				
 			</div>
 		</div>
 
@@ -129,14 +177,26 @@
 					<% products.forEach(product => { %>
 						<div class="col-lg-3 mb-4 text-center">
 							<div class="product-entry underdetail border">
-								<a href="/product_details/<%= product.id %>" class="prod-img">
-									<img src="http://localhost:3000/uploads/<%= product.productImages[0] %>" class="img-fluid" alt="<%= product.productname %>">
+								<a href="/product_details/<%= product._id %>" class="prod-img">
+									<img src="<%= product.productImages[0].startsWith('http') ? product.productImages[0] : 'http://localhost:3000/uploads/' + product.productImages[0] %>" 
+									class="img-fluid" 
+									alt="<%= product.productname %>">															   
 								</a>
 								<div class="desc">
-									<h2><a href="/product_details/<%= product.id %>"><%= product.productname %></a></h2>
+									<a href="/addWishlist/<%- product._id %>" class="wishlist-btn">
+										<% if (wishlistedProductIds.includes(product._id.toString())) { %>
+											<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#EA3323">
+												<path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Z"/>
+											</svg>
+										<% } else { %>
+											<span class="material-symbols-outlined favourited-icon">favorite</span>
+										<% } %>    
+									</a>
+									<h2><a href="/product_details/<%= product._id %>"><%= product.productname %></a></h2>
 									<span class="brand"><%= product.brand %></span>
 									
-									<span class="price">$<%= product.SalePrice %>  <del class="strike">$<%= product.price %></del> <span class="offerper">(<%= product.productOffer%>% off)</span></span>
+									<span class="price">₹<%= product.SalePrice %>  <del class="strike">₹<%= product.price %></del> <span class="offerper">(<%= product.productOffer%>% off)</span></span>
+									
 								</div>
 							</div>
 						</div>
@@ -169,20 +229,107 @@
 				</div>
 			</div>
 		</div>
+
+
+<!-- Toastify CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<!-- Toastify JS -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 		<script>
-			const currentUrl = window.location.href;
-		
-			if (currentUrl.includes('category_collection/676160612c9479069c64d7f1')) {
-				document.getElementById('sneakersDiv').style.display = 'none';
-			}else if(currentUrl.includes('category_collection/6761606e2c9479069c64d7f5')){
-				document.getElementById('FormalsDiv').style.display = 'none';
-			}
-			else if(currentUrl.includes('category_collection/6761607a2c9479069c64d7f9')){
-				document.getElementById('SportssDiv').style.display = 'none';
-			}
-			else if(currentUrl.includes('category_collection/676163f22c9479069c64d80d')){
-				document.getElementById('BootsDiv').style.display = 'none';
-			}
+
+		function sortProducts() {
+			const sortOption = document.getElementById("sortOptions").value;
+			const currentUrl = new URL(window.location.href);
+			currentUrl.searchParams.set('sort', sortOption);
+			window.location.href = currentUrl.href;
+		}
+
+		function applyFilters() {
+		const sort = document.getElementById("sortOptions").value;
+
+		const getCheckedValues = (className) => {
+			return Array.from(document.querySelectorAll(`.${className}:checked`)).map(input => input.value);
+		};
+
+		const price = getCheckedValues("priceFilter");
+		const brand = getCheckedValues("brandFilter");
+		const discount = getCheckedValues("discountFilter");
+
+		const urlParams = new URLSearchParams(window.location.search);
+		urlParams.set("sort", sort);
+
+		if (price.length > 0) urlParams.set("price", price.join(","));
+		else urlParams.delete("price");
+
+		if (brand.length > 0) urlParams.set("brand", brand.join(","));
+		else urlParams.delete("brand");
+
+		if (discount.length > 0) urlParams.set("discount", discount.join(","));
+		else urlParams.delete("discount");
+
+		window.location.href = window.location.pathname + "?" + urlParams.toString();
+	}
+
+
+    function changePage(page) {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set("page", page);
+        window.location.href = window.location.pathname + "?" + urlParams.toString();
+    }
+	document.querySelectorAll(".wishlist-btn").forEach((link) => {
+			link.addEventListener("click", async (event) => {
+				event.preventDefault();
+
+				const productId = link.getAttribute("href").split("/").pop();
+
+				try {
+					const response = await fetch(`/AddToWishlist/${productId}`, {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+					});
+
+					const data = await response.json();
+
+					Toastify({
+						text: data.success ? "Added to Wishlist!" : "Already in Wishlist!",
+						duration: 1000,
+						gravity: "top",
+						position: "center",
+						style: { 
+							background: data.success 
+								? "linear-gradient(to right, #00b09b, #96c93d)" 
+								: "linear-gradient(to right, #ff5f6d, #ffc371)" 
+						},
+						stopOnFocus: true,
+					}).showToast();
+
+					setTimeout(() => {
+						window.location.reload();
+					}, 500);
+
+				} catch (error) {
+					Toastify({
+						text: "Something went wrong!",
+						duration: 3000,
+						gravity: "top",
+						position: "center",
+						style: { 
+							background: "linear-gradient(to right, #ff5f6d, #ffc371)" 
+						},
+						stopOnFocus: true,
+					}).showToast();
+				}
+			});
+		});
+
 		</script>
 		
+		<style>
+
+
+
+
+
+			
+					</style>
 		<%-include('../../views/partials/user/footer.ejs')%>

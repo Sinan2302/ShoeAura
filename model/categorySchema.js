@@ -20,6 +20,10 @@ const categorySchema = new Schema({
         type:Number,
         default:0,
     },
+    categoryImage:{
+        type: [String],
+        required: true,
+    },
     createdAt:{
         type:Date,
         default:Date.now,

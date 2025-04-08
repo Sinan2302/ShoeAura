@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/admin/user_management.css">
+    <title>Product Management</title>
+    <link rel="icon" type="image/png" href="/images/shoeAura icon.png">
+
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/usermanagement">User Management</a>
+            <a href="/admin/product_management">Products Management</a>
+            <a href="/admin/order_management">Order Management</a>
+            <a href="/admin/category_management">Category Management</a>
+            <a class="clr" href="/admin/coupon_management">Coupons Management</a>
+            <a href="#">
+                <form action="/admin/logout" method="POST">
+                    <button type="submit" class="ban-btn btn-danger">Logout</button>
+                </form>
+            </a>
+        </div>
+    
+        <div class="main-content">
+            <nav class="navbar">
+                <a class="navbar-brand">
+                    <div id="colorlib-logo"><img class="logo-header" src="/images/new shoeAura.png" alt=""></div>
+                </a>
+            </nav>
+    
+            <div class="content">
+                <h1>Coupon Management</h1>
+                <div class="coupon-section">
+                    <div class="search-container">
+                        <input type="text" class="form-control" id="searchCouponInput" placeholder="Search coupons..." oninput="searchCoupons()">
+                        <button class="btn search-btn" type="button" onclick="goBack()">Back</button>
+                        <a href="/admin/addcoupon"><button class="btn search-btn" type="button">Add Coupon</button></a>
+
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="coupon-table">
+                            <thead>
+                                <tr>
+                                    <th>Coupon Name</th>
+                                    <th>Offer Price</th>
+                                    <th>Min. Purchase</th>
+                                    <th>Created On</th>
+                                    <th>Expires On</th>
+                                    <th>Status</th>
+                                    <th>Edit</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody id="couponTableBody">
+                                <% coupons.forEach(coupon => { %>
+                                    <tr>
+                                        <td><%= coupon.name %></td>
+                                        <td>₹<%= coupon.offerPrice.toFixed(2) %></td>
+                                        <td>₹<%= coupon.minPurchase.toFixed(2) %></td>
+                                        <td><%= new Date(coupon.createdAt).toLocaleDateString() %></td>
+                                        <td><%= new Date(coupon.expiresOn).toLocaleDateString() %></td>
+                                        <td>
+                                            <%- coupon.isActive ? '<span class="status-active">Active</span>' : '<span class="status-inactive">Inactive</span>' %>
+                                        </td>
+                                        <td>
+                                            <button class="btn update-btn" onclick="window.location.href='/admin/updatecoupon/<%= coupon._id %>'">Edit</button>
+                                        </td>
+                                        <td>
+                                            <button class="btn delete-btn" onclick="deleteCoupon('<%= coupon._id %>')">Delete</button>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+    
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <div class="block-27" style="display: flex; justify-content: center; align-items: center; padding: 10px;">
+                                <ul>
+                                    <% if (currentPage > 1) { %>
+                                        <li><a href="?page=<%= currentPage - 1 %>"><i class="ion-ios-arrow-back"></i></a></li>
+                                    <% } %>
+    
+                                    <% for (let i = 1; i <= totalPages; i++) { %>
+                                        <li class="<%= i === currentPage ? 'active' : '' %>">
+                                            <a href="?page=<%= i %>"><%= i %></a>
+                                        </li>
+                                    <% } %>
+    
+                                    <% if (currentPage < totalPages) { %>
+                                        <li><a href="?page=<%= currentPage + 1 %>"><i class="ion-ios-arrow-forward"></i></a></li>
+                                    <% } %>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function deleteCoupon(couponId) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete it!",
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch(`/admin/deletecoupon/${couponId}`, {
+                            method: "DELETE",
+                        });
+    
+                        const result = await response.json();
+    
+                        if (response.ok) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Deleted!",
+                                text: "The coupon has been deleted.",
+                                showConfirmButton: false,
+                                timer: 2000,
+                            }).then(() => {
+                                location.reload(); 
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error!",
+                                text: result.message || "Failed to delete the coupon.",
+                            });
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Server Error!",
+                            text: "Something went wrong. Please try again later.",
+                        });
+                    }
+                }
+            });
+        }
+    </script>
+    
+</body>
+</html>

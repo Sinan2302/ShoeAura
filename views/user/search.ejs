@@ -1,0 +1,49 @@
+<%- include('../../views/partials/user/header.ejs', {isLogin: typeof isLogin !== 'undefined' ? isLogin : false}) %>
+
+<div class="container ">
+    <button class="btn search-btn " style="background-color: #5ca4f0; color: white;" type="button" onclick="goBack()"><span class="material-symbols-outlined">
+        arrow_back
+        </span>Back To Shop Page</button>
+
+    <div class="row">
+        <div class="col-sm-8 offset-sm-2 text-center colorlib-heading">
+            <h2 class="Collectionhead" >Search Results</h2>
+        </div>
+    </div>
+    <div class="row row-pb-md">
+        <% if (products.length > 0) { %>
+            <% products.forEach(product => { %>
+                <div class="col-lg-3 mb-4 text-center">
+                    <div class="product-entry underdetail border">
+                        <a href="/product_details/<%= product.id %>" class="prod-img">
+                            <img src="<%= product.productImages[0].startsWith('http') ? product.productImages[0] : 'http://localhost:3000/uploads/' + product.productImages[0] %>" 
+									class="img-fluid" 
+									alt="<%= product.productname %>">
+                        </a>
+                        <div class="desc">
+                            <h2><a href="/product_details/<%= product.id %>"><%= product.productname %></a></h2>
+                            <span class="brand"><%= product.brand %></span>
+                            
+                            <span class="price">₹<%= product.SalePrice %>  <del class="strike">₹<%= product.price %></del> <span class="offerper">(<%= product.productOffer%>% off)</span></span>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        <% } else { 
+            %> <p>No products found for "<%= query %>".</p>
+        <% } %>
+        
+    </div>
+</div>
+
+
+<script>
+
+function goBack(){
+    window.location.href = '/shopping_page'
+}
+
+</script>
+
+
+<%- include('../../views/partials/user/footer.ejs') %>

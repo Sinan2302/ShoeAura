@@ -1,0 +1,617 @@
+
+
+<%- include('../../views/partials/user/header.ejs', {isLogin: typeof isLogin !== 'undefined' ? isLogin : false}) %>
+
+
+		<div class="breadcrumbs">
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<p class="bread">
+							<% breadcrumbs.forEach((crumb, index) => { %>
+								<span>
+									<a style="color:tomato;" href="<%= crumb.url %>"><%= crumb.name %></a>
+								</span>
+								<% if (index < breadcrumbs.length - 1) { %> / <% } %>
+							<% }) %>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+<div class="profile-container">
+    <div class="container mt-5">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3">
+                <div class="profile-sidebar">
+                        <div class="profile-icon ">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
+                                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
+                            </svg>
+                        </div>
+                        <h6 class="mb-5"> Hello <%= isLogin.name%></h6>
+                    <a href="/UserProfile" class="sidebar-item active">Profile Details</a>
+                    <a href="/myOrders" class="sidebar-item">My Orders</a>
+                    <a href="/ProfileAddress" class="sidebar-item">My Address</a>
+                    <a href="/wallet" class="sidebar-item ">My Wallet</a>
+                    <a href="/referral" class="sidebar-item ">Referral</a>
+
+                    <div class="logout-section">
+                        <form action="/logout" method="POST">
+                            <p class="logout-text">Do you want to logout?</p>
+                            <button type="submit" class="btn-logout">Logout</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Details Section -->
+            <div class="col-md-9">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <h4 class="profile-title">PERSONAL INFORMATION</h4>
+                    </div>
+                    <div class="profile-body">
+                        <p class="profile-info">
+                            <strong>Profile Name:</strong> 
+                            <input type="text" id="userName" value="<%= user.name %>" readonly>
+                        </p>
+                        
+                        <p class="profile-info">
+                            <strong>Phone Number:</strong> 
+                            <input type="tel" id="userPhone" value="<%= user.phone ? user.phone : 'Not provided' %>" readonly>
+                        </p>
+                         <button class="btn-edit-profile"  onclick="openEditModal()">Edit Profile</button>
+                    </div>
+                    <div class="profile-header mt-3">
+                        <h4 class="profile-title">EMAIL </h4>
+                    </div>
+                    <div class="profile-body">
+                        <p class="profile-info">
+                            <strong>User Email:</strong> 
+                            <input type="email" id="userEmail" value="<%= user.email %>" readonly>
+                        </p>
+                        
+                        <button class="btn-edit-profile"  onclick="openEditEmailModal()">Edit Email</button>
+                    </div>
+                    <div class="profile-header mt-3">
+                        <h4 class="profile-title">PASSWORD </h4>
+                    </div>
+                    <div class="profile-body">
+                        <p class="profile-info">
+                            <strong>Account Password:</strong> 
+                            <input type="password" id="userPassword" value="********" readonly>
+                        </p>
+                        <button class="btn-edit-profile"  onclick="openEditProfilePasswordModal()">Change Password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Edit Profile Modal -->
+<div id="editProfileModal" style="display: none;" class="modal" >
+    <div class="modal-content">
+        <span class="close" onclick="closeEditModal()">&times;</span>
+        <h2>Edit Profile</h2>
+        <form id="editProfileForm">
+            <label for="edit-name">Name:</label>
+            <input type="text" id="edit-name" name="name" value="<%= user.name %>" >
+            <small class="error-message" style="color: tomato;" id="name-error"></small>
+            
+            <label for="edit-phone">Phone Number:</label>
+            <input type="number" id="edit-phone" name="phone" value="<%= user.phone ? user.phone : '' %>">
+            <small class="error-message danger" style="color: tomato;" id="phone-error"></small>
+            
+            
+            <button type="submit" class="btn-save">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+
+<!-- Edit Profile Email Modal -->
+<div id="editProfileEmailModal" style="display: none;" class="modal" >
+    <div class="modal-content">
+        <span class="close" onclick="closeEditEmailModal()">&times;</span>
+        <h2>Edit Email</h2>
+        <form id="editProfileEmailForm">
+            <label for="edit-email">Email:</label>
+            <input type="text" id="edit-email" name="email" value="<%= user.email %>" >
+            <small class="error-message" style="color: tomato;" id="email-error"></small>
+            
+            <button type="submit" class="btn-save">Get Otp</button>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Profile Email Otp Modal -->
+
+<div id="editProfileEmailOtpModal" style="display: none;" class="modal" >
+    <div class="modal-content">
+        <span class="close" onclick="closeEditEmailOtpModal()">&times;</span>
+        <h2>Otp Verification</h2>
+        <form id="editProfileEmailOtpForm">
+            <input type="number" id="edit-otp1" name="otp1" class="mb-3" placeholder="Enter the opt sent to the old email" >
+            <small class="error-message" style="color: tomato;" id="Otp1-error"></small>
+            
+            <input type="number" id="edit-otp2" name="otp2" placeholder="Enter the opt sent to the new email" >
+            <small class="error-message" style="color: tomato;" id="Otp2-error"></small>
+            
+            <button type="submit" class="btn-save">Update</button>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Profile  New password Modal -->
+
+<div id="editPasswordOtpModal" style="display: none;" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeEditPasswordOtpModal()">&times;</span>
+        <h2>OTP Verification</h2>
+        <form id="editProfilepasswordOtpForm">
+            <input type="number" id="edit-otp" name="otp" class="mb-3" placeholder="Enter the OTP sent to your email">
+            <small class="error-message" style="color: tomato;" id="otp-error"></small>
+            
+            <button type="submit" class="btn-save">Verify OTP</button>
+        </form>
+    </div>
+</div>
+
+
+<!-- Edit Profile  New password Modal -->
+
+<div id="editProfilePasswordModal" style="display: none;" class="modal" >
+    <div class="modal-content">
+        <span class="close" onclick="closeEditProfilePasswordModal()">&times;</span>
+        <h2>Change Password</h2>
+        <form id="editProfilepasswordForm">
+            <label for="edit-name">Current Password:</label>
+            <input type="password" id="edit-currentpassword" name="currentpassword" class="mb-3" placeholder="Enter current password ">
+            <small class="error-message" style="color: tomato;" id="password-error"></small>
+            
+            <label for="edit-name">New Password:</label>
+            <input type="password" id="edit-password" name="password" class="mb-3" placeholder="Enter new password ">
+            <small class="error-message" style="color: tomato;" id="password-error"></small>
+            
+            <label for="edit-name">Confirm Password:</label>
+            <input type="password" id="edit-confirmpassword" name="confirmpassword" placeholder="Confirm password" >
+            <small class="error-message" style="color: tomato;" id="confirmpassword-error"></small>
+            
+            <button type="submit" class="btn-save">Update</button>
+        </form>
+    </div>
+</div>
+
+<div id="loadingSpinner" style="display: none;">
+    <div class="spinner">
+        <img src="images/shoeAura icon.png" alt="Loading" class="center-image">
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+
+    function openEditModal(){
+        document.getElementById('editProfileModal').style.display = 'flex'
+    }
+
+    function closeEditModal(){
+        document.getElementById('editProfileModal').style.display = 'none'
+    }
+
+    document.getElementById('editProfileForm').addEventListener('submit',async function(e){
+        e.preventDefault()
+
+
+        let isValid = true;
+        const username = document.getElementById('edit-name').value.trim()
+        const phone = document.getElementById('edit-phone').value.trim()
+        const validPhone = phone.length==10
+
+        if (!username) {
+            showError("name-error", "Please enter your name.");
+            isValid = false;
+        }
+      
+        if(!validPhone){
+            showError("phone-error", "Phone Number must be 10 digits.");
+            isValid = false;
+        }
+
+        if(!isValid) return;
+
+            try {
+                const response = await fetch("/editprofile", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name:username, phone }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({ icon: "success", title: "Success", text: data.message })
+                        .then(() => {
+                            window.location.reload(); 
+                        });
+                } else {
+                    Swal.fire({ icon: "error", title: "Error", text: data.message });
+                }
+
+            } catch (error) {
+                Swal.fire({ icon: "error", title: "Error", text: "Something went wrong, try again." });
+            }
+
+    })
+
+
+    function openEditEmailModal(){
+        document.getElementById('editProfileEmailModal').style.display = 'flex'
+    }
+
+    function closeEditEmailModal(){
+        document.getElementById('editProfileEmailModal').style.display = 'none'
+    }
+
+
+    
+    document.getElementById('editProfileEmailForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    document.getElementById('loadingSpinner').style.display = 'flex';
+
+    let isValid = true;
+
+    const emailInput = document.getElementById('edit-email');
+    const email = emailInput.value.trim();
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+
+    if (!emailRegex.test(email)) {
+        showError("phone-error", "Please enter a valid email.");
+        isValid = false;
+    }
+
+    if(!isValid) return;
+
+    try {
+        const response = await fetch("/editprofileEmail", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+        });
+
+        const data = await response.json();
+        document.getElementById('loadingSpinner').style.display = 'none';
+
+        if (data.success) {
+            Swal.fire({
+                icon: "success",
+                title: "Success",
+                text: data.message
+            }).then(() => {
+                closeEditEmailModal();  
+                openEditEmailOtpModal(); 
+            });
+        } else {
+            Swal.fire({ 
+                icon: "error", 
+                title: "Error", 
+                text: data.message 
+            });
+        }
+    } catch (error) {
+        Swal.fire({ 
+            icon: "error", 
+            title: "Error", 
+            text: "Something went wrong, try again." 
+        });
+    }
+});
+
+
+ function openEditEmailOtpModal(){
+        document.getElementById('editProfileEmailOtpModal').style.display = 'flex'
+    }
+
+    function closeEditEmailOtpModal(){
+        document.getElementById('editProfileEmailOtpModal').style.display = 'none'
+    }
+
+
+    document.getElementById('editProfileEmailOtpForm').addEventListener('submit',async function (e){
+        e.preventDefault()
+
+        const otp1 = document.getElementById('edit-otp1').value.trim()
+        const otp2 = document.getElementById('edit-otp2').value.trim()
+
+        let isValid = true;
+
+        if(otp1.length!=6){
+            showError("email-error", "Please enter a valid email.");
+            isValid = false;
+        }
+        if(otp2.length!=6){
+            showError("email-error", "Please enter a valid email.");
+            isValid = false;
+        }
+
+        if(!isValid) return;
+        try {
+                const response = await fetch("/postEmailOtp", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ otp1 ,otp2}),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({ icon: "success", title: "Success", text: data.message })
+                        .then(() => {
+                            window.location.reload(); 
+                        });
+                } else {
+                    Swal.fire({ icon: "error", title: "Error", text: data.message });
+                }
+
+            } catch (error) {
+                Swal.fire({ icon: "error", title: "Error", text: "Something went wrong, try again." });
+            }
+
+
+    })
+
+    function openEditProfilePasswordModal(){
+        document.getElementById('editProfilePasswordModal').style.display = 'flex'
+    }
+
+    function closeEditProfilePasswordModal(){
+        document.getElementById('editProfilePasswordModal').style.display = 'none'
+    }
+
+    document.getElementById('editProfilepasswordForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        document.getElementById('loadingSpinner').style.display = 'flex';
+
+        const password = document.getElementById('edit-password').value.trim();
+        const confirmpassword = document.getElementById('edit-confirmpassword').value.trim();
+        const currentpassword = document.getElementById('edit-currentpassword').value.trim()
+        let isValid = true; 
+
+        if (password.length < 8) { 
+            showError("email-error", "Password must be at least 8 characters.");
+            isValid = false;
+        }
+
+        if (confirmpassword !== password) {
+            showError("email-error", "Password and confirm password do not match.");
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+        try {
+            const response = await fetch("/postNewpassword", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({currentpassword, password, confirmpassword }),
+            });
+
+            const data = await response.json();
+            document.getElementById('loadingSpinner').style.display = 'none';
+
+            if (data.success) {
+                Swal.fire({ icon: "success", title: "Success", text: data.message })
+                    .then(() => {
+                        closeEditProfilePasswordModal()
+                        openEditPasswordOtpModal(); 
+                    });
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: data.message });
+            }
+
+        } catch (error) {
+            Swal.fire({ icon: "error", title: "Error", text: "Something went wrong, try again." });
+        }
+    });
+
+        function openEditPasswordOtpModal() {
+            document.getElementById("editPasswordOtpModal").style.display = "flex";
+        }
+
+        function closeEditPasswordOtpModal() {
+            document.getElementById("editPasswordOtpModal").style.display = "none";
+        }
+
+    document.getElementById('editProfilepasswordOtpForm').addEventListener('submit',async function(e){
+        e.preventDefault()
+
+        const otp = document.getElementById('edit-otp').value.trim()
+
+        const isValid = true
+
+        if(otp.length !== 6){
+            showError("email-error", "Enter the valid Otp.");
+            isValid = false;
+        }
+        if(!isValid)return;
+
+        try {
+            const response = await fetch("/postPasswordOtp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ otp }),
+            });
+
+            const data = await response.json();
+            document.getElementById('loadingSpinner').style.display = 'none';
+
+            if (data.success) {
+                Swal.fire({ icon: "success", title: "Success", text: data.message })
+                    .then(() => {
+                        window.location.reload(); 
+                    });
+            } else {
+                Swal.fire({ icon: "error", title: "Error", text: data.message });
+            }
+
+        } catch (error) {
+            Swal.fire({ icon: "error", title: "Error", text: "Something went wrong, try again." });
+        }
+    })
+
+    function clearErrors() {
+        document.querySelectorAll(".error-message").forEach(el => el.innerText = "");
+    }
+    
+    function showError(id, message) {
+        document.getElementById(id).innerText = message;
+    }
+
+</script>
+
+<style>
+    /* Modal Styles */
+    .modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .modal-content {
+        background: #2c2b2b;
+        padding: 20px;
+        border-radius: 8px;
+        width: 400px;
+        text-align: center;
+        position: relative;
+    }
+    
+    .modal-content h2 {
+        margin-bottom: 15px;
+        color: white;
+    }
+    
+    .modal-content label {
+        display: block;
+        color: white;
+        text-align: left;
+        margin: 10px 0 5px;
+    }
+    
+    .modal-content input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .modal.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+        .btn-save {
+        margin-top: 20px;
+        background: linear-gradient(135deg, #232526, #414345);
+        color: white;
+        box-shadow: 0 0 8px rgba(65, 67, 69, 0.7);
+        padding: 10px 15px;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+        transition: 0.3s;
+    }
+
+        
+    .btn-save:hover {
+        background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+
+    }
+        
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 20px;
+        cursor: pointer;
+    }
+    #loadingSpinner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.spinner {
+    position: relative;
+    border: 8px solid rgba(76, 168, 88, 0.3); 
+    border-top: 8px solid #4CA858; 
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    animation: spin 1.5s linear infinite;
+}
+
+.center-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px; /* Adjust as needed */
+    height: 60px; /* Adjust as needed */
+    border-radius: 50%;
+    object-fit: cover; /* Ensures image maintains aspect ratio */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.profile-info {
+    margin-bottom: 10px;
+}
+
+.profile-info input {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f5f5f5;
+    color: #333;
+    cursor: not-allowed; /* Prevent clicking */
+    outline: none;
+    transition: all 0.3s ease-in-out;
+}
+
+/* When input is editable */
+.profile-info input:focus {
+    background-color: white;
+    border-color: #007bff;
+    cursor: text;
+}
+
+    </style>
+<%- include('../../views/partials/user/footer.ejs') %>

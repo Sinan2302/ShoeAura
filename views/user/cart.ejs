@@ -1,0 +1,815 @@
+<%- include('../../views/partials/user/header.ejs', {isLogin: typeof isLogin !== 'undefined' ? isLogin : false}) %>
+
+
+	<% if (isLogin )  { %>
+		<% if (cartlength )  { %>
+		<div class="breadcrumbs">
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<p class="bread">
+							<% breadcrumbs.forEach((crumb, index) => { %>
+								<span>
+									<a style="color:tomato;" href="<%= crumb.url %>"><%= crumb.name %></a>
+								</span>
+								<% if (index < breadcrumbs.length - 1) { %> / <% } %>
+							<% }) %>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row row-pb-lg">
+			<div class="col-sm-10 offset-md-1">
+				<div class="checkout-progress-wrapper">
+					<div class="checkout-progress-bar">
+						<div class="checkout-progress-line"></div>
+					</div>
+					<div class="checkout-steps">
+						<div class="checkout-step checkout-active" data-step="1">
+							<div class="checkout-step-number">01</div>
+							<h3>Shopping Cart</h3>
+						</div>
+						<div class="checkout-step " data-step="2">
+							<div class="checkout-step-number">02</div>
+							<h3>Checkout</h3>
+						</div>
+						<div class="checkout-step" data-step="3">
+							<div class="checkout-step-number">03</div>
+							<h3>Order Complete</h3>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>	
+
+		<div class="colorlib-product">
+			<div class="container">
+				<div class="row row-pb-lg">
+					<div class="col-md-12">
+						<div class="product-name d-flex">
+							<div class="one-forth text-left px-4">
+								<span>Product Details</span>
+							</div>
+							<div class="one-eight text-center">
+								<span>Size Selected</span>
+							</div>
+							<div class="one-eight text-center">
+								<span>Price</span>
+							</div>
+							<div class="one-eight text-center">
+								<span>Quantity</span>
+							</div>
+							<div class="one-eight text-center">
+								<span>Total</span>
+							</div>
+							<div class="one-eight text-center px-4">
+								<span>Remove</span>
+							</div>
+						</div>
+						<% cart.items.forEach(item => { %>
+							<div class="product-cart d-flex">
+								<div class="one-forth">
+									<a href="/product_details/<%= item.productId._id %>"><div class="product-img" style="background-image: url('<%=item.productId.productImages[0].includes("https") ? item.productId.productImages[0] : "/uploads/" + item.productId.productImages[0] %>');"></div></a>
+									<div class="display-tc">
+										<h3><%= item.productId.productname %></h3>
+									</div>
+								</div>
+								<div class="one-eight text-center">
+									<div class="display-tc">
+										<span class="size" data-id="<%= item.productId._id %>"><%= item.size %></span>
+									</div>
+								</div>
+								
+								<div class="one-eight text-center">
+									<div class="display-tc">
+										<span class="price">₹<%= item.price.toFixed(2) %></span>
+									</div>
+								</div>
+								<div class="one-eight text-center" >
+									<div class="display-tc d-flex justify-content-center align-items-center">
+										<button class="btn btn-sm btn-outline-secondary minus-btn px-3" data-id="<%= item.productId._id %>">-</button>
+										<input  type="number"  class="form-control text-center mx-2 quantity-input bigger-input qty-cart " 
+										
+											   name="quantity" 
+											   value="<%= item.quantity %>" 
+											   min="1" max="3" 
+											   data-id="<%= item.productId._id %>"
+											    >
+										<button class="btn btn-sm btn-outline-secondary plus-btn px-3" data-id="<%= item.productId._id %>">+</button>
+									</div>
+								</div>
+								
+								
+								<div class="one-eight text-center">
+									<div class="display-tc">
+										<span class="price">₹<%= (item.quantity * item.price).toFixed(2) %></span>
+									</div>
+								</div>
+								<div class="one-eight text-center">
+									<div class="display-tc">
+										<button onclick="removeFromCart('<%= item._id %>')" class="removeBtn">X</button>
+									</div>
+								</div>
+							</div>
+						<% }) %>
+						
+					</div>
+				</div>
+                <div class="row row-pb-lg">
+                    <div class="col-md-12">
+                        <div class="coupon-section d-flex justify-content-center align-items-center">
+                            <input type="text" id="couponCode" class="text-center w-50" placeholder="Enter Coupon Code">
+                            <button class="btn bg-primary text-white mx-2 w-25" onclick="applyCoupon()">Apply Coupon</button>
+                            <button id="removeCouponBtn" class="btn btn-danger mx-2 w-25 d-none" onclick="removeCoupon()">Remove Coupon</button>
+                            <button id="viewCouponsBtn" class="btn btn-outline-primary">View Available Coupons</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Coupon Modal -->
+                <div class="modal fade" id="availableCouponsModal" tabindex="-1" aria-labelledby="availableCouponsLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <!-- Modal Header -->
+                            <div class="modal-header">
+                                <h5 class="modal-title text-white" id="availableCouponsLabel">Available Coupons</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <!-- Modal Body -->
+                            <div class="modal-body">
+                                <% if (coupons.length > 0) { %>
+                                    <% coupons.forEach(coupon => { %>
+                                        <div class="coupon-card">
+                                            <p><strong>Coupon:</strong> <span class="text-primary"><%= coupon.name %></span></p>
+                                            <p><strong>Offer:</strong> ₹<%= coupon.offerPrice %> Off</p>
+                                            <p><strong>Minimum Purchase:</strong> ₹<%= coupon.minPurchase %></p>
+                                            <p><strong>Expires on:</strong> <%= new Date(coupon.expiresOn).toLocaleDateString() %></p>
+                                            <button class="copy-btn" onclick="copyCoupon('<%= coupon.name %>')">
+                                                Copy Code
+                                            </button>
+                                        </div>
+                                    <% }) %>
+                                <% } else { %>
+                                    <p class="text-muted">No coupons available at the moment.</p>
+                                <% } %>
+                            </div>
+
+                            <!-- Modal Footer -->
+                        
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary" id="backFromCouponsBtn" data-bs-dismiss="modal">Back</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="row row-pb-lg">
+                    <div class="col-md-12">
+                        <div class="total">
+                            <div class="sub">
+                                <p><span>Subtotal:</span> <span id="subtotalValue">₹<%= Subtotal.toFixed(2) %></span></p>
+                                <p><span>Delivery (<%= DeliveryMes %>):</span> <span>₹<%= ShippingFee.toFixed(2) %></span></p>
+                                
+                                <!-- Coupon Discount Display -->
+                                <p><span>Discount:</span> <span id="discountAmount">₹<%= Discount.toFixed(2) %></span></p>
+                            </div>
+                            
+                            <div class="grand-total">
+                                <p><span><strong>Total:</strong></span> <span id="finalTotal">₹<%= Total.toFixed(2) %></span></p>
+                            </div>
+                            
+                            <button class="checkout-btn">
+                                Proceed to Checkout (₹<span id="checkoutTotal"><%= Total ? Total.toFixed(2) : '0.00' %></span>)
+                            </button>
+                        </div>                        
+                    </div>
+                </div>
+                
+                
+
+				
+			</div>
+		</div>
+		<% } else { %>
+			<div class="error">
+				<h1>4<img class="halloween-image" src="images/booth.jpg" alt="Halloween Image">4</h1>
+				
+				<h2>Boo! Missing cart items!</h2>
+				<p>Whoops! Add Some product to the Cart! </p>
+				<div class="container">
+				  <a href="/Shopping_page" class="button bg-danger">Shopping page</a>
+				</div>
+				</div>
+				<% } %>	
+
+	<% } else { %>
+		<div class="error">
+			<h1>4<img class="halloween-image" src="images/booth.jpg" alt="Halloween Image">4</h1>
+			
+			<h2>Boo! Missing cart items!</h2>
+			<p>Whoops! Login to see the items you added previously!</p>
+			<div class="container">
+			  <a href="/userlogin" class="button bg-danger">Login</a>
+			</div>
+			</div>
+
+	<% } %>	
+    <div id="couponData" style="display:none;">
+        <%= JSON.stringify(coupons) %>
+    </div>
+    
+    
+    
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+	<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const couponModal = new bootstrap.Modal(document.getElementById("availableCouponsModal"));
+
+        function openCouponModal() {
+            couponModal.show();
+        }
+
+        function closeCouponModal() {
+            couponModal.hide();
+        }
+
+        document.getElementById("viewCouponsBtn")?.addEventListener("click", openCouponModal);
+        document.getElementById("backFromCouponsBtn")?.addEventListener("click", closeCouponModal);
+
+        window.openCouponModal = openCouponModal;
+        window.closeCouponModal = closeCouponModal;
+    });
+
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+    document.querySelector('.checkout-btn').addEventListener('click', async () => {
+        try {
+            const cartItems = [];
+            document.querySelectorAll('.product-cart').forEach((cartItem) => {
+                const productId = cartItem.querySelector('.size').getAttribute('data-id');
+                const size = cartItem.querySelector('.size').innerText;
+                const quantity = parseInt(cartItem.querySelector('.quantity-input').value, 10);
+                const price = parseFloat(cartItem.querySelector('.price').innerText.replace('₹', ''));
+
+                cartItems.push({ productId, size, quantity, price });
+            });
+
+            // Get final total and discount amount
+            const finalTotal = parseFloat(document.getElementById("finalTotal").innerText.replace('₹', ''));
+            const discountAmount = parseFloat(document.getElementById("discountAmount").innerText.replace('₹', ''));
+
+            const response = await fetch("/postCart", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    cartItems, 
+                    finalTotal, 
+                    discountAmount 
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                window.location.href = "/checkout"; 
+            } else {
+                throw new Error(data.message || "Checkout failed!");
+            }
+
+        } catch (error) {
+            Toastify({
+                text: error.message || "Something went wrong!",
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                style: { background: "linear-gradient(to right, #ff5f6d, #ffc371)" },
+            }).showToast();
+        }
+    });
+});
+
+
+
+
+
+
+
+		async function removeFromCart(itemId) {
+			try {
+				const response = await fetch("/removeCart", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ itemId })
+				});
+
+				const data = await response.json();
+				
+				if (data.success) {
+					Toastify({
+						text: "Item removed successfully!",
+						duration: 3000,
+						gravity: "bottom",
+						position: "center",
+						backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
+					}).showToast();
+
+					setTimeout(() => window.location.reload(), 500);
+				} else {
+					alert(data.message);
+				}
+			} catch (error) {
+				console.error("Remove Cart Error:", error);
+			}
+		}
+
+
+		document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".plus-btn, .minus-btn").forEach(btn => {
+        btn.addEventListener("click", async function () {
+            let cartItem = this.closest(".product-cart"); // Updated to match the correct parent class
+            
+            if (!cartItem) {
+                console.error("Cart item container not found.");
+                return;
+            }
+
+            let productId = this.dataset.id;
+            let inputField = cartItem.querySelector(`.quantity-input[data-id='${productId}']`);
+            let sizeElement = cartItem.querySelector(`.size[data-id='${productId}']`);
+
+            if (!inputField || !sizeElement) {
+                console.error("Input field or size element not found.");
+                return;
+            }
+
+            let selectedSize = sizeElement.innerText.trim();
+            let newQuantity = parseInt(inputField.value);
+
+            if (this.classList.contains("plus-btn")) {
+                newQuantity++;
+            } else if (this.classList.contains("minus-btn")) {
+                newQuantity = Math.max(1, newQuantity - 1);
+            }
+
+            console.log("Product ID:", productId);
+            console.log("New Quantity:", newQuantity);
+            console.log("Selected Size:", selectedSize);
+
+            await updateCart(productId, newQuantity, inputField, selectedSize);
+        });
+    });
+
+    async function updateCart(productId, quantity, inputField, selectedSize) {
+        try {
+            const response = await fetch(`/updateCart`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ productId, quantity, selectedSize })
+            });
+
+            const data = await response.json();
+            console.log("Server Response:", data);
+
+            if (data.success) {
+                Toastify({
+                    text: `You have changed "${data.productName}" (Size: ${selectedSize}) quantity to "${data.updatedQuantity}"`,
+                    duration: 3000,
+                    gravity: "bottom",
+                    position: "center",
+                    style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
+                    stopOnFocus: true,
+                }).showToast();
+
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                Toastify({
+                    text: data.message,
+                    duration: 3000,
+                    gravity: "bottom",
+                    position: "center",
+                    style: { background: "linear-gradient(to right, #ff5f6d, #ffc371)" },
+                    stopOnFocus: true,
+                }).showToast();
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            Toastify({
+                text: "Something went wrong. Please try again.",
+                duration: 3000,
+                gravity: "bottom",
+                position: "center",
+                style: { background: "linear-gradient(to right, #ff5f6d, #ffc371)" },
+                stopOnFocus: true,
+            }).showToast();
+        }
+    }
+});
+
+function copyCoupon(code) {
+    navigator.clipboard.writeText(code).then(() => {
+        Toastify({
+            text: `Coupon Code Copied: ${code}`,
+            duration: 3000,
+            gravity: "top",
+            position: "center",
+            style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
+
+        }).showToast();
+    }).catch(err => {
+        console.error("Failed to copy: ", err);
+    });
+}
+
+
+
+function applyCoupon() {
+    let couponCode = document.getElementById("couponCode").value.trim();
+    if (!couponCode) {
+        Toastify({
+            text: "Please enter a coupon code!",
+            duration: 3000,
+            gravity: "top",
+            position: "center",
+            style: { background: "linear-gradient(to right, #ff5f6d, #ffc371)" },
+        }).showToast();
+        return;
+    }
+
+    let availableCoupons = JSON.parse(document.getElementById("couponData").textContent);
+    
+    let selectedCoupon = availableCoupons.find(coupon => coupon.name === couponCode);
+    
+    if (!selectedCoupon) {
+        Toastify({
+            text: "Invalid Coupon Code!",
+            duration: 3000,
+            gravity: "top",
+            position: "center",
+            style: { background: "linear-gradient(to right, #ff5f6d, #ffc371)" },
+        }).showToast();
+        return;
+    }
+
+    let currentDate = new Date();
+    if (new Date(selectedCoupon.expiresOn) < currentDate) {
+        Toastify({
+            text: "Coupon has expired!",
+            duration: 3000,
+            gravity: "top",
+            position: "center",
+            style: { background: "linear-gradient(to right, #ff5f6d, #ffc371)" },
+        }).showToast();
+        return;
+    }
+
+    let subtotalElement = document.getElementById("subtotalValue");
+    if (!subtotalElement) {
+        console.error("Subtotal element not found!");
+        return;
+    }
+    
+    let subtotal = parseFloat(subtotalElement.innerText.replace('₹', ''));
+    if (isNaN(subtotal)) {
+        console.error("Invalid subtotal value!");
+        return;
+    }
+
+    if (subtotal < selectedCoupon.minPurchase) {
+        Toastify({
+            text: `Minimum purchase of ₹${selectedCoupon.minPurchase} required!`,
+            duration: 3000,
+            gravity: "top",
+            position: "center",
+            style: { background: "linear-gradient(to right, #ff5f6d, #ffc371)" },
+        }).showToast();
+        return;
+    }
+
+    let discountAmount = selectedCoupon.offerPrice;
+    document.getElementById("discountAmount").innerText = `₹${discountAmount.toFixed(2)}`;
+
+    let shippingFeeElement = document.getElementById("shippingFeeValue");
+    let shippingFee = shippingFeeElement ? parseFloat(shippingFeeElement.innerText.replace('₹', '')) : 0;
+
+    let finalTotal = subtotal + shippingFee - discountAmount;
+    document.getElementById("finalTotal").innerText = `${finalTotal.toFixed(2)}`;
+    
+    document.getElementById("checkoutTotal").innerText = `${finalTotal.toFixed(2)}`;
+    document.getElementById("removeCouponBtn").classList.remove("d-none"); // Show remove button
+
+    Toastify({
+        text: `Coupon Applied! ₹${discountAmount} Off`,
+        duration: 3000,
+        gravity: "top",
+        position: "center",
+        style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
+    }).showToast();
+}
+
+function removeCoupon() {
+    let discountElement = document.getElementById("discountAmount");
+    let subtotalElement = document.getElementById("subtotalValue");
+    let finalTotalElement = document.getElementById("finalTotal");
+    let checkoutTotalElement = document.getElementById("checkoutTotal");
+    let shippingFeeElement = document.getElementById("shippingFeeValue");
+
+    if (!discountElement || !subtotalElement || !finalTotalElement || !checkoutTotalElement) {
+        console.error("Some required elements are missing!");
+        return;
+    }
+
+    let discountAmount = parseFloat(discountElement.innerText.replace('₹', '')) || 0;
+    let subtotal = parseFloat(subtotalElement.innerText.replace(/[₹,]/g, '')) || 0;
+    let shippingFee = shippingFeeElement ? parseFloat(shippingFeeElement.innerText.replace(/[₹,]/g, '')) || 0 : 0;
+
+    let finalTotal = subtotal + shippingFee; 
+
+    discountElement.innerText = "₹0.00";
+    finalTotalElement.innerText = `₹${finalTotal.toFixed(2)}`;
+    checkoutTotalElement.innerText = `₹${finalTotal.toFixed(2)}`;
+
+    document.getElementById("couponCode").value = "";
+    document.getElementById("couponCode").disabled = false;
+    document.getElementById("removeCouponBtn").classList.add("d-none"); 
+
+    Toastify({
+        text: `Coupon removed!`,
+        duration: 3000,
+        gravity: "top",
+        position: "center",
+        style: { background: "linear-gradient(to right, #ff5f6d, #ffc371)" },
+    }).showToast();
+}
+
+document.getElementById("applyCouponBtn").addEventListener("click", applyCoupon);
+
+
+	</script>
+
+	<style>
+		
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Hide spinner buttons in Firefox */
+.quantity-input {
+    -moz-appearance: textfield;
+}
+
+/* Cart Total Section */
+.total {
+    width: 100%;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 30px;
+	box-shadow: 1px 1px 5px #000000;
+	
+}
+
+/* Subtotal & Grand Total Styling */
+.total .sub,
+.total .grand-total {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+}
+
+.total .grand-total {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.total .sub p,
+.total .grand-total p {
+    display: flex;
+    justify-content: space-between; /* Moves spans to opposite sides */
+    margin: 8px 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.total .grand-total span {
+    color: #388e3c; /* Green color for total amount */
+}
+
+/* Align Total Wrap */
+.total-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+/* Checkout Button */
+.checkout-btn {
+    width: 100%;
+    padding: 12px;
+    background:linear-gradient(to right, #ff5f6d, #ff9966);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    margin-top: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.checkout-btn:hover {
+    background-color: #2e2f2e;
+}
+
+.checkout-progress-wrapper {
+    position: relative !important;
+    max-width: 800px !important;
+    margin: auto !important;
+    padding: 20px 0 !important;
+}
+
+/* Progress Bar */
+.checkout-progress-bar {
+    position: absolute !important;
+    top: 50% !important;
+    left: 10% !important;
+    width: 80% !important;
+    height: 4px !important;
+    background: #ddd !important;
+    z-index: 0 !important;
+    transform: translateY(-50%) !important;
+}
+
+.checkout-progress-line {
+    height: 100% !important;
+    background: #5ca4f0 !important;
+    width: 33% !important; /* Adjust based on active steps */
+    transition: width 0.4s ease-in-out !important;
+}
+
+/* Steps Container */
+.checkout-steps {
+    display: flex !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* Individual Steps */
+.checkout-step {
+    text-align: center !important;
+    width: 33% !important;
+    position: relative !important;
+
+}
+
+/* Step Numbers */
+.checkout-step-number {
+    width: 50px !important;
+    height: 50px !important;
+    line-height: 50px !important;
+    background: #ccc !important;
+    color: white !important;
+    font-weight: bold !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    font-size: 18px !important;
+    margin: auto !important;
+    transition: background 0.3s ease-in-out !important;
+}
+
+/* Active Step */
+.checkout-step.checkout-active .checkout-step-number {
+    background: #5ca4f0 !important;
+    color: white !important;
+}
+
+/* Step Titles */
+.checkout-step h3 {
+    margin-top: 10px !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    color: #444 !important;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .checkout-progress-wrapper {
+        max-width: 100% !important;
+    }
+    .checkout-progress-bar {
+        left: 5% !important;
+        width: 90% !important;
+    }
+}
+.qty-cart{
+	border: 0 !important;
+}
+/* ======= Flipkart-style Coupon Modal ======= */
+.modal-content {
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Modal Header */
+.modal-header {
+    background-color: #5ca4f0;
+    color: white;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.modal-header h5 {
+    font-weight: bold;
+}
+
+/* Modal Body */
+.modal-body {
+    background-color: #f1f3f6;
+    padding: 20px;
+}
+
+/* Coupon Card Style */
+.coupon-card {
+    background: white;
+    border-left: 5px solid #ff9f00;
+    padding: 12px;
+    border-radius: 8px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.coupon-card:hover {
+    transform: scale(1.02);
+}
+
+/* Coupon Text */
+.coupon-card p {
+    margin: 5px 0;
+    font-size: 15px;
+}
+
+/* Coupon Code */
+.text-primary {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+/* Copy Button */
+.copy-btn {
+    background-color: #ff9f00;
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.copy-btn:hover {
+    background-color: #e68a00;
+}
+
+/* Back Button */
+.modal-footer .btn-secondary {
+    background-color: #2874f0;
+    border: none;
+    font-weight: bold;
+    padding: 8px 15px;
+    border-radius: 6px;
+}
+
+.modal-footer .btn-secondary:hover {
+    background-color: #1e5bbf;
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+  
+	</style>
+
+	
+<%-include('../../views/partials/user/footer.ejs')%>

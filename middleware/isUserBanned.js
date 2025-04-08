@@ -10,6 +10,8 @@ const sessionValidator = async (req, res, next) => {
                         console.error("Error destroying session:", err);
                         return res.status(500).send("An error occurred.");
                     }
+                    console.log("user",user)
+
                     return res.redirect('/banpage'); 
                 });
                 return;

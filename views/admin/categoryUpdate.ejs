@@ -6,7 +6,113 @@
     <link rel="stylesheet" href="/css/admin/user_management.css">
     <title>Update category</title>
     <link rel="icon" type="image/png" href="/images/shoeAura icon.png">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
 
+    <style>
+        #loadingSpinner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.spinner {
+    position: relative;
+    border: 8px solid rgba(76, 168, 88, 0.3); 
+    border-top: 8px solid #4CA858; 
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    animation: spin 1.5s linear infinite;
+}
+
+.center-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px; /* Adjust as needed */
+    height: 60px; /* Adjust as needed */
+    border-radius: 50%;
+    object-fit: cover; /* Ensures image maintains aspect ratio */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+        .helper-text {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        .invalid-feedback {
+            color: red;
+            display: none;
+        }
+        .is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+
+        .crop-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+            border: 2px dashed #ddd;
+            max-width: 400px;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .crop-container img {
+            max-width: 400px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        .crop-preview {
+            display: flex;
+            max-width: 200px;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            border: 2px solid #ddd;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .crop-preview canvas {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -14,9 +120,9 @@
             <a href="/admin/dashboard">Dashboard</a>
             <a href="/admin/usermanagement">User Management</a>
             <a href="/admin/product_management">Products Management</a>
-            <a href="#">Order Management</a>
+            <a href="/admin/order_management">Order Management</a>
             <a class="clr" href="/admin/category_management">Category Management</a>
-            <a href="#">Coupons Management</a>
+            <a href="/admin/coupon_management">Coupons Management</a>
         </div>
 
         <div class="main-content">
@@ -31,7 +137,7 @@
                 <!-- Add User Form -->
                 <div class="add-user-form">
                     <h2>Update Category</h2>
-                    <form action="/admin/categoryUpdate/:id" method="POST" id="categoryForm" enctype="multipart/form-data">
+                    <form  id="categoryForm" enctype="multipart/form-data">
                         <div class="form-group">
                             <label for="categoryname">Category name:</label>
                             <input type="text" id="categoryname" name="categoryname" placeholder="Enter Category name" value="<%= categoryData.categoryname %>" required>
@@ -44,7 +150,31 @@
                         <div class="form-group">
                             <label for="categoryOffer">Category Offer</label>
                             <input type="number" id="categoryOffer" name="categoryOffer"  placeholder="Enter count" value="<%= categoryData.categoryOffer %>" required>
-                        </div>                                               
+                        </div>   
+                        <div class="mb-4">
+                            <label class="form-label text-white">Update Image</label>
+                            <!-- Hidden input for file upload -->
+                            <input type="file" id="uploadImage" name="croppedImages" accept="image/*" onchange="handleImage(event)" style="display: none;" />
+                            
+                            <!-- Container for displaying the existing image or cropper -->
+                            <div id="cropperContainer">
+                                <% if (categoryData.categoryImage) { %>
+                                <!-- Show existing image preview if image exists -->
+                                <div id="existingImagePreview" class="crop-preview">
+                                    <img src="<%= categoryData?.categoryImage %>" alt="Category Image" style="max-width: 200px; height: auto;">
+                                    <button type="button" class="btn btn-danger mt-2" onclick="removeExistingImage()">Remove Image</button>
+                                </div>
+                                <% } else { %>
+                                <!-- Show file input directly if no image exists -->
+                                <input type="file" id="uploadImage" name="croppedImages" accept="image/*" onchange="handleImage(event)" />
+                                <% } %>
+                            </div>
+                        </div>
+                        <div id="loadingSpinner" style="display: none;">
+                            <div class="spinner">
+                                <img src="/images/shoeAura icon.png" alt="Loading" class="center-image">
+                            </div>
+                        </div>
                         <button type="submit" class="btn add-user-btn">Update</button>
                     </form>
                 </div>
@@ -52,57 +182,167 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
     <script>
-        document.getElementById('categoryForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        let cropper;
     
+        // Handle removal of the existing image
+        function removeExistingImage() {
+            const existingImagePreview = document.getElementById('existingImagePreview');
+            const fileInput = document.getElementById('uploadImage');
+
+            if (existingImagePreview) {
+                existingImagePreview.remove(); // Remove the existing image preview
+            }
+            fileInput.style.display = 'block'; 
+            
+           
+        }
+
+    
+        // Handle new image upload and cropping
+        function handleImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+    
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const cropperContainer = document.getElementById('cropperContainer');
+    
+                // Clear existing cropper or image previews
+                cropperContainer.innerHTML = '';
+    
+                const div = document.createElement('div');
+                div.classList.add('crop-container');
+                div.id = 'crop-container';
+    
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.id = 'cropImage';
+                div.appendChild(img);
+    
+                const previewButton = document.createElement('button');
+                previewButton.textContent = 'Preview Cropped Image';
+                previewButton.classList.add('btn', 'btn-primary', 'mt-2');
+                previewButton.type = 'button';
+                previewButton.onclick = previewCroppedImage;
+                div.appendChild(previewButton);
+    
+                cropperContainer.appendChild(div);
+    
+                // Initialize Cropper.js
+                cropper = new Cropper(img, { aspectRatio: 1, viewMode: 1 });
+            };
+            reader.readAsDataURL(file);
+        }
+    
+        // Preview cropped image
+        function previewCroppedImage() {
+            const canvas = cropper.getCroppedCanvas();
+            canvas.toBlob((blob) => {
+                if (blob) {
+                    const cropperContainer = document.getElementById('cropperContainer');
+    
+                    // Clear existing cropper
+                    const cropContainer = document.getElementById('crop-container');
+                    if (cropContainer) cropContainer.remove();
+    
+                    const previewDiv = document.createElement('div');
+                    previewDiv.classList.add('crop-preview');
+    
+                    const imgElement = document.createElement('img');
+                    imgElement.src = URL.createObjectURL(blob);
+                    imgElement.style.maxWidth = '200px';
+                    imgElement.style.height = 'auto';
+                    previewDiv.appendChild(imgElement);
+    
+                    const removeButton = document.createElement('button');
+                    removeButton.textContent = 'Remove Cropped Image';
+                    removeButton.classList.add('btn', 'btn-danger', 'mt-2');
+                    removeButton.type = 'button';
+                    removeButton.onclick = () => previewDiv.remove();
+                    previewDiv.appendChild(removeButton);
+    
+                    cropperContainer.appendChild(previewDiv);
+                }
+            });
+        }
+    
+        // Form submission with cropped or existing image
+        document.getElementById('categoryForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            document.getElementById('loadingSpinner').style.display = 'flex';
+
             const categoryId = "<%= categoryData._id %>";
             const categoryname = document.getElementById('categoryname').value.trim();
             const description = document.getElementById('description').value.trim();
             const categoryOffer = document.getElementById('categoryOffer').value.trim();
     
+            const formData = new FormData();
+            formData.append('categoryname', categoryname);
+            formData.append('description', description);
+            formData.append('categoryOffer', categoryOffer);
+            const imageRemoved = !document.getElementById('cropperContainer').querySelector('img');
+    if (imageRemoved) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Image Required',
+            text: 'Please upload or crop an image before submitting!',
+            confirmButtonText: 'OK',
+        });
+        return; // Prevent form submission
+    }
+            // Handle cropped image
+            if (cropper) {
+                const canvas = cropper.getCroppedCanvas();
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        formData.append('croppedImages', blob, 'category_image.png');
+                    }
+                    submitForm(formData, categoryId);
+                });
+            } else {
+                submitForm(formData, categoryId);
+            }
+        });
+    
+        function submitForm(formData, categoryId) {
             fetch(`/admin/updateCategory/${categoryId}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    categoryname,
-                    description,
-                    categoryOffer
-                })
+                body: formData,
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                if (data.success) {
-                    Swal.fire({
-                        icon: "success",
-                        title: 'Success',
-                        text: 'Category updated successfully',
-                    }).then(() => {
-                        window.location.href = '/admin/category_management'; 
-                    });
-                } else {
+                .then((response) => response.json())
+                .then((data) => {
+                    document.getElementById('loadingSpinner').style.display = 'none';
+
+                    if (data.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: 'Success',
+                            text: 'Category updated successfully',
+                        }).then(() => {
+                            window.location.href = '/admin/category_management';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: 'Oops...',
+                            text: data.message ,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    document.getElementById('loadingSpinner').style.display = 'none';
+                    console.error('Error:', error);
                     Swal.fire({
                         icon: "error",
                         title: 'Oops...',
-                        text: data.message || 'Failed to update category',
+                        text: 'An unexpected error occurred while updating the category',
                     });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire({
-                    icon: "error",
-                    title: 'Oops...',
-                    text: 'An unexpected error occurred while updating the category',
                 });
-            });
-        });
-    </script>
-    
-   
+        }
+    </script> 
 </body>
 </html>

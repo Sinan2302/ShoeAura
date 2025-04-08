@@ -1,14 +1,14 @@
 
 
-<%- include('../../views/partials/user/header.ejs') %>
+<%- include('../../views/partials/user/header.ejs', {isLogin: typeof isLogin !== 'undefined' ? isLogin : false}) %>
 
   <div class="error">
-  <h1>4<img class="halloween-image" src="images/booth.jpg" alt="Halloween Image">4</h1>
+  <h1>4<img class="halloween-image" src="/images/booth.jpg" alt="Halloween Image">4</h1>
   
   <h2>Boo! Page missing!</h2>
   <p>Whoops! This page must be a ghost - it's not here!</p>
   <div class="container">
-    <a href="/" class="button">Go Home</a>
+    <a href="/" class="button bg-danger">Go Home</a>
   </div>
   </div>
 

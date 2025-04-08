@@ -1,0 +1,778 @@
+<%- include('../../views/partials/user/header.ejs', {isLogin: typeof isLogin !== 'undefined' ? isLogin : false}) %>
+
+	
+
+		<div class="breadcrumbs">
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<p class="bread">
+							<% breadcrumbs.forEach((crumb, index) => { %>
+								<span>
+									<a style="color:tomato;" href="<%= crumb.url %>"><%= crumb.name %></a>
+								</span>
+								<% if (index < breadcrumbs.length - 1) { %> / <% } %>
+							<% }) %>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+        <div class="profile-container">
+            <div class="container mt-5">
+                <div class="row">
+                    <!-- Sidebar -->
+                    <div class="col-md-3">
+                        <div class="profile-sidebar">
+                            <div class="profile-icon ">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
+                                    <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
+                                </svg>
+                            </div>
+                            <h6 class="mb-5"> Hello <%= isLogin.name%></h6>
+                            <a href="/UserProfile" class="sidebar-item ">Profile Details</a>
+                            <a href="/myOrders" class="sidebar-item">My Orders</a>
+                            <a href="/ProfileAddress" class="sidebar-item active">My Address</a>
+                            <a href="/wallet" class="sidebar-item ">My Wallet</a>
+                            <a href="/referral" class="sidebar-item ">Referral</a>
+
+                            <div class="logout-section">
+                                <form action="/logout" method="POST">
+                                    <p class="logout-text">Do you want to logout?</p>
+                                    <button type="submit" class="btn-logout">Logout</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <!-- My Address Section -->
+                    <div class="col-md-9">
+
+                        <div id="myAddress" class="profile-card">
+                            <div class="profile-header">
+                                <h4 class="profile-title">MY ADDRESS</h4>
+                            </div>
+                            <div class="profile-body">
+                                <h5>Add New Address</h5>
+                                <button class="btn-edit-profile " onclick="openEditModal()">Add Address</button>
+                                <form id="addAddressForm"></form>
+                
+                                <h5>Existing Addresses</h5>
+                                <div id="existingAddresses" class="address-container">
+                                    <% addresses.forEach(addrDoc => { %> 
+                                        <% addrDoc.address.forEach(addr => { %> 
+                                            <div id="addressCard-<%= addr._id %>" class="address-card">
+                                                <h3 class="address-type"><%= addr.addressType %></h3>
+                                                <p><strong class="address-name"><%= addr.name %></strong>, <i class="fa fa-phone"></i> <%= addr.phone %></p>
+                                                <p class="address-details">
+                                                    <%- addr.address.replace(/\n/g, ", ") %>
+                                                    <% if (addr.landmark) { %>
+                                                        , <i class="fa fa-map-marker"></i> <%= addr.landmark %>
+                                                    <% } %>
+                                                    , <i class="fa fa-map"></i> <%= addr.city %>, <%= addr.state %>, <%= addr.pincode %>
+                                                </p>
+                                                <div class="address-actions">
+                                                    <!-- Edit Button -->
+                                                    <button class="edit-btn" onclick="openEditAddressModal('<%= addr._id %>')">
+                                                        <i class="fa fa-edit"></i> Edit
+                                                    </button>
+                                                    <!-- Delete Button -->
+                                                    <button class="delete-btn" onclick="confirmDelete('<%= addr._id %>')">
+                                                        <i class="fa fa-trash"></i> Delete
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        <% }) %>
+                                    <% }) %>
+                                </div>                                                        
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    <!-- Add Profile Address Modal -->
+    
+    <div id="editProfileModal" style="display: none;" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2>Add Address</h2>
+            <form id="editProfileForm">
+                <div class="form-group">
+                    <div>
+                        <label for="edit-name">Full Name:</label>
+                        <input type="text" id="edit-name" name="name" placeholder="Enter the Full Name" >
+                        <small class="error-message" style="color: tomato;" id="name-error"></small>
+                    </div>
+                    <div>
+                        <label for="edit-phone">Phone Number:</label>
+                        <input type="number" id="edit-phone" name="phone" placeholder="Enter the 10 digit Phone Number">
+                        <small class="error-message" style="color: tomato;" id="phone-error"></small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div>
+                        <label for="edit-pincode">Pincode:</label>
+                        <input type="number" id="edit-pincode" name="pincode" placeholder="Enter the 6 digit pincode" >
+                        <small class="error-message" style="color: tomato;" id="pincode-error"></small>
+                    </div>
+                    <div>
+                        <label for="edit-landmark">Landmark:</label>
+                        <input type="text" id="edit-landmark" name="landmark" placeholder="Enter the landmark near your location" >
+                        <small class="error-message" style="color: tomato;" id="landmark-error"></small>
+                    </div>
+                </div>
+
+                <label for="edit-address">Address:</label>
+                <textarea id="edit-address" name="address" placeholder="Enter Building name/no. and Street" ></textarea>
+                <small class="error-message" style="color: tomato;" id="address-error"></small>
+
+                <div class="form-group">
+                    <div>
+                        <label for="edit-city">City:</label>
+                        <input type="text" id="edit-city" name="city" placeholder="Enter the City/District" >
+                        <small class="error-message" style="color: tomato;" id="city-error"></small>
+                    </div>
+                    <div>
+                        <label for="edit-state">State:</label>
+                        <select id="edit-state" name="state">
+                            <option value="">Select a State</option>
+                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                            <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                            <option value="Assam">Assam</option>
+                            <option value="Bihar">Bihar</option>
+                            <option value="Chhattisgarh">Chhattisgarh</option>
+                            <option value="Goa">Goa</option>
+                            <option value="Gujarat">Gujarat</option>
+                            <option value="Haryana">Haryana</option>
+                            <option value="Himachal Pradesh">Himachal Pradesh</option>
+                            <option value="Jharkhand">Jharkhand</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Kerala">Kerala</option>
+                            <option value="Madhya Pradesh">Madhya Pradesh</option>
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Manipur">Manipur</option>
+                            <option value="Meghalaya">Meghalaya</option>
+                            <option value="Mizoram">Mizoram</option>
+                            <option value="Nagaland">Nagaland</option>
+                            <option value="Odisha">Odisha</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Rajasthan">Rajasthan</option>
+                            <option value="Sikkim">Sikkim</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Telangana">Telangana</option>
+                            <option value="Tripura">Tripura</option>
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="Uttarakhand">Uttarakhand</option>
+                            <option value="West Bengal">West Bengal</option>
+                            <option value="Chandigarh">Chandigarh</option>
+                            <option value="Delhi">Delhi</option>
+                            <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                         
+                        </select>
+                        
+                        <small class="error-message" style="color: tomato;" id="state-error"></small>
+                    </div>
+                </div>
+
+                <label for="edit-addressType">Address Type:</label>
+                <select id="edit-addressType" name="addressType">
+                    <option value="">Select Address Type</option>
+                    <option value="Home">Home</option>
+                    <option value="Work">Work</option>
+                </select>
+                <small class="error-message" style="color: tomato;" id="addressType-error"></small>
+
+                <button type="submit" class="btn-save">Save Address</button>
+            </form>
+        </div>
+    </div>
+    <!-- Edit Profile Address Modal -->
+
+    <div id="editProfileAddressModal" style="display: none;" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditAddressModal()">&times;</span>
+            <h2>Edit Address</h2>
+            <form id="editProfileAddressForm">
+                <div class="form-group">
+                    <div>
+                        <label for="edit-name">Full Name:</label>
+                        <input type="hidden" id="edit-addressId" name="addressId">
+                        <input type="text" id="edits-name" name="name" >
+                        <small class="error-message" style="color: tomato;" id="name-error"></small>
+                    </div>
+                    <div>
+                        <label for="edit-phone">Phone Number:</label>
+                        <input type="number" id="edits-phone" name="phone">
+                        <small class="error-message" style="color: tomato;" id="phone-error"></small>
+                    </div>
+                </div>
+    
+                <div class="form-group">
+                    <div>
+                        <label for="edit-pincode">Pincode:</label>
+                        <input type="number" id="edits-pincode" name="pincode"  >
+                        <small class="error-message" style="color: tomato;" id="pincode-error"></small>
+                    </div>
+                    <div>
+                        <label for="edit-landmark">Landmark:</label>
+                        <input type="text" id="edits-landmark" name="landmark" >
+                        <small class="error-message" style="color: tomato;" id="landmark-error"></small>
+                    </div>
+                </div>
+    
+                <label for="edit-address">Address:</label>
+                <textarea id="edits-address" name="address"></textarea>
+                <small class="error-message" style="color: tomato;" id="address-error"></small>
+    
+                <div class="form-group">
+                    <div>
+                        <label for="edit-city">City:</label>
+                        <input type="text" id="edits-city" name="city" >
+                        <small class="error-message" style="color: tomato;" id="city-error"></small>
+                    </div>
+                    <div>
+                        <label for="edit-state">State:</label>
+                        <select id="edits-state" name="state">
+                            <option value="">Select a State</option>
+                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                            <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                            <option value="Assam">Assam</option>
+                            <option value="Bihar">Bihar</option>
+                            <option value="Chhattisgarh">Chhattisgarh</option>
+                            <option value="Goa">Goa</option>
+                            <option value="Gujarat">Gujarat</option>
+                            <option value="Haryana">Haryana</option>
+                            <option value="Himachal Pradesh">Himachal Pradesh</option>
+                            <option value="Jharkhand">Jharkhand</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Kerala">Kerala</option>
+                            <option value="Madhya Pradesh">Madhya Pradesh</option>
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Manipur">Manipur</option>
+                            <option value="Meghalaya">Meghalaya</option>
+                            <option value="Mizoram">Mizoram</option>
+                            <option value="Nagaland">Nagaland</option>
+                            <option value="Odisha">Odisha</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Rajasthan">Rajasthan</option>
+                            <option value="Sikkim">Sikkim</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Telangana">Telangana</option>
+                            <option value="Tripura">Tripura</option>
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="Uttarakhand">Uttarakhand</option>
+                            <option value="West Bengal">West Bengal</option>
+                            <option value="Chandigarh">Chandigarh</option>
+                            <option value="Delhi">Delhi</option>
+                            <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                         
+                        </select>
+                        
+                        
+                        <small class="error-message" style="color: tomato;" id="state-error"></small>
+                    </div>
+                </div>
+    
+                <label for="edit-addressType">Address Type:</label>
+                <select id="edits-addressType" name="addressType">
+                    <option value="">Select Address Type</option>
+                    <option value="Home">Home</option>
+                    <option value="Work">Work</option>
+                </select>
+                <small class="error-message" style="color: tomato;" id="addressType-error"></small>
+    
+                <button type="submit" class="btn-save">Save Changes</button>
+            </form>
+        </div>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+
+        async function confirmDelete(addressId) {
+            const result = await Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to recover this address!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "Cancel"
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch("/deleteAddress", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ id: addressId })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        Swal.fire({
+                            title: "Deleted!",
+                            text: data.message,
+                            icon: "success",
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        document.getElementById(`addressCard-${addressId}`).remove(); 
+                    } else {
+                        throw new Error(data.message || "Failed to delete address");
+                    }
+                } catch (error) {
+                    console.error("Delete Error:", error);
+                    Swal.fire({
+                        title: "Error!",
+                        text: error.message || "Something went wrong.",
+                        icon: "error"
+                    });
+                }
+            }
+        }
+
+
+    function openEditModal(){
+        document.getElementById('editProfileModal').style.display = 'flex'
+    }
+
+    function closeEditModal(){
+        document.getElementById('editProfileModal').style.display = 'none'
+    }
+
+
+   function openEditAddressModal(addressId) {
+    document.getElementById('edit-addressId').value = addressId;
+
+        document.getElementById('editProfileAddressModal').style.display = 'flex';
+
+        fetch(`/getAddress/${addressId}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log("Fetched Address Data:", data); 
+
+            if (data.success && data.address) { 
+                const address = data.address.address[0];
+
+                console.log("Matched Address:", address); // Debugging log
+
+                document.getElementById('edits-name').value = address.name || "";
+                document.getElementById('edits-phone').value = address.phone || "";
+                document.getElementById('edits-pincode').value = address.pincode || "";
+                document.getElementById('edits-landmark').value = address.landmark || "";
+                document.getElementById('edits-address').value = address.address || "";
+                document.getElementById('edits-city').value = address.city || "";
+                document.getElementById('edits-state').value = address.state || "";
+                document.getElementById('edits-addressType').value = address.addressType || "";
+            } else {
+                console.error("Address data not found:", data);
+            }
+        })
+        .catch(error => console.error("Error fetching address:", error));
+    }
+
+
+
+
+    function closeEditAddressModal(){
+        document.getElementById('editProfileAddressModal').style.display = 'none'
+    }
+
+    document.getElementById('editProfileAddressForm').addEventListener('submit',async function(e){
+        e.preventDefault()
+
+        let isValid = true;
+        const name = document.getElementById('edits-name').value.trim()
+        const phone = document.getElementById('edits-phone').value.trim()
+        const pincode = document.getElementById('edits-pincode').value.trim();
+        const landmark = document.getElementById('edits-landmark').value.trim()
+        const address = document.getElementById('edits-address').value.trim()
+        const city = document.getElementById('edits-city').value.trim()
+        const state = document.getElementById('edits-state').value.trim()
+        const addressType = document.getElementById('edits-addressType').value.trim()
+        const validPhone = phone.length==10
+
+        document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+
+        if (name === '') {
+            document.getElementById('name-error').textContent = 'Full Name is required';
+            isValid = false;
+        }
+
+        if (!/^\d{10}$/.test(phone)) {
+            document.getElementById('phone-error').textContent = 'Enter a valid 10-digit phone number';
+            isValid = false;
+        }
+
+        if (!/^\d{6}$/.test(pincode)) {
+            document.getElementById('pincode-error').textContent = 'Enter a valid 6-digit pincode';
+            isValid = false;
+        }
+
+        if (address === '') {
+            document.getElementById('address-error').textContent = 'Address is required';
+            isValid = false;
+        }
+
+        if (city === '') {
+            document.getElementById('city-error').textContent = 'City is required';
+            isValid = false;
+        }
+
+        if (state === '') {
+            document.getElementById('state-error').textContent = 'Please select a state';
+            isValid = false;
+        }
+
+        if (addressType === '') {
+            document.getElementById('addressType-error').textContent = 'Please select an address type';
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+        const addressId = document.getElementById('edit-addressId').value;
+
+            try {
+                const response = await fetch(`/editAddress/${addressId}`, {
+
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, phone, pincode, landmark, address, city, state, addressType }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({ icon: "success", title: "Success", text: data.message })
+                        .then(() => {
+                            window.location.reload(); 
+                        });
+                } else {
+                    Swal.fire({ icon: "error", title: "Error", text: data.message });
+                }
+
+            } catch (error) {
+                Swal.fire({ icon: "error", title: "Error", text: "Something went wrong, try again." });
+            }
+
+    })
+
+
+    document.getElementById('editProfileForm').addEventListener('submit',async function(e){
+        e.preventDefault()
+
+        let isValid = true;
+        const name = document.getElementById('edit-name').value.trim()
+        const phone = document.getElementById('edit-phone').value.trim()
+        const pincode = document.getElementById('edit-pincode').value.trim();
+        const landmark = document.getElementById('edit-landmark').value.trim()
+        const address = document.getElementById('edit-address').value.trim()
+        const city = document.getElementById('edit-city').value.trim()
+        const state = document.getElementById('edit-state').value.trim()
+        const addressType = document.getElementById('edit-addressType').value.trim()
+        const validPhone = phone.length==10
+
+        document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+
+        if (name === '') {
+            document.getElementById('name-error').textContent = 'Full Name is required';
+            isValid = false;
+        }
+
+        if (!/^\d{10}$/.test(phone)) {
+            document.getElementById('phone-error').textContent = 'Enter a valid 10-digit phone number';
+            isValid = false;
+        }
+
+        if (!/^\d{6}$/.test(pincode)) {
+            document.getElementById('pincode-error').textContent = 'Enter a valid 6-digit pincode';
+            isValid = false;
+        }
+
+        if (address === '') {
+            document.getElementById('address-error').textContent = 'Address is required';
+            isValid = false;
+        }
+
+        if (city === '') {
+            document.getElementById('city-error').textContent = 'City is required';
+            isValid = false;
+        }
+
+        if (state === '') {
+            document.getElementById('state-error').textContent = 'Please select a state';
+            isValid = false;
+        }
+
+        if (addressType === '') {
+            document.getElementById('addressType-error').textContent = 'Please select an address type';
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+
+            try {
+                const response = await fetch("/addAddress", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, phone, pincode, landmark, address, city, state, addressType }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({ icon: "success", title: "Success", text: data.message })
+                        .then(() => {
+                            window.location.reload(); 
+                        });
+                } else {
+                    Swal.fire({ icon: "error", title: "Error", text: data.message });
+                }
+
+            } catch (error) {
+                Swal.fire({ icon: "error", title: "Error", text: "Something went wrong, try again." });
+            }
+
+    })
+        function clearErrors() {
+            document.querySelectorAll(".error-message").forEach(el => el.innerText = "");
+        }
+        function showError(id, message) {
+            document.getElementById(id).innerText = message;
+        }
+
+</script>
+<style>
+   .modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; /* Prevent scrolling outside the modal */
+}
+
+.modal-content {
+    background: white; /* Changed background to white */
+    padding: 20px;
+    border-radius: 8px;
+    width: 600px; /* Increased width */
+    text-align: center;
+    position: relative;
+    max-height: 90%; /* Limit height to 90% of the viewport */
+    overflow-y: auto; /* Enable scrolling within the modal */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+    animation: fadeIn 0.5s ease-out; /* Fade-in effect */
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+.modal-content h2 {
+    margin-bottom: 15px;
+    color: #5ca4f0; /* Changed text color to match theme */
+    border-bottom: 2px solid #5ca4f0; /* Add border for emphasis */
+    padding-bottom: 10px; /* Add padding */
+}
+
+.modal-content label {
+    display: block;
+    color: #172337; /* Changed text color to match theme */
+    text-align: left;
+    margin: 10px 0 5px;
+    font-weight: bold; /* Bold labels */
+}
+
+.form-group {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px; /* Add space between form groups */
+}
+
+.form-group div {
+    width: 50%;
+}
+
+.modal-content input,
+.modal-content select,
+.modal-content textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    color: #172337; /* Text color to match theme */
+    margin-bottom: 10px; /* Add space between inputs */
+    transition: border 0.3s ease; /* Smooth transition */
+}
+
+.modal-content input:focus,
+.modal-content select:focus,
+.modal-content textarea:focus {
+    border: 1px solid #5ca4f0; /* Highlight border on focus */
+    outline: none; /* Remove default outline */
+}
+
+.btn-save {
+    margin-top: 20px;
+    background: linear-gradient(to right, #ff5f6d, #ff9966) ;
+    color: white;
+    box-shadow: 0 0 8px rgba(65, 67, 69, 0.7);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
+}
+
+.btn-save:hover {
+    background: linear-gradient(to right, #f6d365, #fda085) !important;
+    color: #000000;
+    box-shadow: 0 0 12px rgba(65, 67, 69, 0.9); /* Intense shadow on hover */
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #172337; /* Changed text color to match theme */
+    transition: color 0.3s ease; /* Smooth transition */
+}
+
+.close:hover {
+    color: #5ca4f0; /* Change color on hover */
+}
+
+.btn-edit-profile {
+    background-color: #007bff;
+}
+
+/* Address Container */
+.address-container {
+    display: flex;
+    flex-direction: column; /* Stack the cards vertically */
+    gap: 15px;
+    padding: 20px;
+    max-width: 100%; /* Full width */
+    margin: auto; /* Center container */
+}
+
+/* Address Card */
+.address-card {
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.5); /* Subtle border */
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 10px; /* Reduced padding */
+    width: 100%; /* Full width */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover Effect */
+.address-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Address Type */
+.address-type {
+    font-size: 1.2rem; /* Slightly smaller font size */
+    font-weight: bold;
+    color: #111; /* Darker text */
+    margin-bottom: 5px; /* Reduced margin */
+    text-transform: uppercase;
+    text-align: left;
+}
+
+/* Address Details */
+.address-name, .address-phone, .address-details, .address-landmark, .address-location {
+    font-size: 0.9rem; /* Slightly smaller font size */
+    color: #222; /* Darker text */
+    text-align: left;
+    margin: 3px 0; /* Reduced margin */
+}
+
+.address-name {
+    display: inline; /* Display name inline with phone number */
+}
+
+.address-phone {
+    margin-left: 10px; /* Margin between name and phone number */
+}
+
+/* Icons */
+.fa {
+    margin-right: 5px;
+    color: #007bff;
+}
+
+/* Edit & Delete Buttons */
+.address-actions {
+    display: flex;
+    justify-content: space-between; /* Space out buttons */
+    align-items: center;
+    margin-top: 10px; /* Reduced margin */
+}
+
+.edit-btn, .delete-btn {
+    padding: 5px 10px; /* Reduced padding for classic style */
+    font-size: 0.8rem; /* Slightly smaller font size */
+    cursor: pointer;
+    border-radius: 8px;
+    font-weight: bold;
+    border: 1px solid #ccc; /* Classic border */
+    background: #f0f0f0; /* Classic background */
+    color: #333; /* Classic text color */
+}
+
+.edit-btn {
+    background: #007bff;
+    color: #fff;
+}
+
+.delete-btn {
+    background: #dc3545;
+    color: #fff;
+}
+
+/* Button Hover */
+.edit-btn:hover {
+    background: #4f98e5;
+}
+
+.delete-btn:hover {
+    background: #b02a37;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .address-container {
+        padding: 20px; /* Adjust padding for smaller screens */
+    }
+}
+
+
+
+</style>
+<%- include('../../views/partials/user/footer.ejs') %>

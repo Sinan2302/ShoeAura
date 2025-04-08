@@ -1,9 +1,18 @@
-const isLogin = async(req,res,next)=>{
-    if(req.session.isAdminLoggedIn){
-        res.redirect('/admin/dashboard')
-    }else{
+const checkSession = async(req,res,next)=>{
+    if(!req.session.isAdminLoggedIn){
         next()
+    }else{
+        res.redirect('/admin/dashboard')
+
     }
 }
 
-module.exports = {isLogin}
+const isLogin = async(req,res,next)=>{
+    if(req.session.isAdminLoggedIn){
+        next()
+    }else{
+        res.redirect('/admin/adminlogin')
+    }
+}
+
+module.exports = {checkSession,isLogin}

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Coupon</title>
+    <link rel="icon" type="image/png" href="/images/shoeAura icon.png">
+    <link rel="stylesheet" href="/css/admin/user_management.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/usermanagement">User Management</a>
+            <a href="/admin/product_management">Products Management</a>
+            <a href="/admin/order_management">Order Management</a>
+            <a class="clr" href="/admin/category_management">Category Management</a>
+            <a href="/admin/coupon_management">Coupons Management</a>
+        </div>
+
+        <div class="main-content">
+            <nav class="navbar">
+                <a class="navbar-brand">
+                    <div id="colorlib-logo">
+                        <img class="logo-header" src="/images/new shoeAura.png" alt="Logo">
+                    </div>
+                </a>
+            </nav>
+
+            <div class="content">
+                <h1>Edit Coupon</h1>
+
+                <div class="add-user-form">
+                    <h2>Update Coupon</h2>
+                    <form id="editCouponForm" action="/admin/updatecoupon/<%= coupon._id %>" method="POST">
+                        <input type="hidden" id="couponId" name="couponId" value="<%= coupon._id %>">
+                    
+                        <div class="form-group">
+                            <label for="couponCode">Coupon Code:</label>
+                            <input type="text" id="couponCode" name="couponCode" value="<%= coupon.name %>" required>
+                        </div>
+                    
+                        <div class="form-group">
+                            <label for="offerPrice">Offer Price:</label>
+                            <input type="number" id="offerPrice" name="offerPrice" value="<%= coupon.offerPrice %>" required>
+                        </div>
+                    
+                        <div class="form-group">
+                            <label for="minPurchase">Minimum Purchase:</label>
+                            <input type="number" id="minPurchase" name="minPurchase" value="<%= coupon.minPurchase %>" required>
+                        </div>
+                    
+                        <div class="form-group">
+                            <label for="expiresOn">Expiration Date:</label>
+                            <input type="date" id="expiresOn" name="expiresOn" value="<%= coupon.expiresOn.toISOString().split('T')[0] %>" required>
+                        </div>
+                    
+                        <div class="form-group">
+                            <label for="isActive">Status:</label>
+                            <select id="isActive" name="isActive" class="dropdownOrsize" required>
+                                <option value="true" <%= coupon.isActive ? 'selected' : '' %>>Active</option>
+                                <option value="false" <%= !coupon.isActive ? 'selected' : '' %>>Inactive</option>
+                            </select>
+                        </div>
+                    
+                        <button type="submit" class="btn add-user-btn">Update Coupon</button>
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+         document.getElementById("editCouponForm").addEventListener("submit", async function (event) {
+        event.preventDefault(); 
+
+        const couponId = document.getElementById("couponId").value;
+        const couponCode = document.getElementById("couponCode").value;
+        const offerPrice = document.getElementById("offerPrice").value;
+        const minPurchase = document.getElementById("minPurchase").value;
+        const expiresOn = document.getElementById("expiresOn").value;
+        const isActive = document.getElementById("isActive").value;
+
+        try {
+            const response = await fetch(`/admin/updatecoupon/${couponId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: couponCode,
+                    offerPrice: offerPrice,
+                    minPurchase: minPurchase,
+                    expiresOn: expiresOn,
+                    isActive: isActive === "true", 
+                }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Coupon Updated Successfully!",
+                    showConfirmButton: false,
+                    timer: 2000,
+                }).then(() => {
+                    window.location.href = "/admin/coupon_management"; 
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Update Failed",
+                    text: result.message || "An error occurred. Please try again.",
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Server Error",
+                text: "Something went wrong. Please try again later.",
+            });
+        }
+    });
+    </script>
+</body>
+</html>

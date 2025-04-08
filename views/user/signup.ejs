@@ -6,6 +6,48 @@
     <title>Sign Up</title>
     <link rel="icon" type="image/png" href="images/shoeAura icon.png">
     <link rel="stylesheet" href="css/user/userlogin.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        #loadingSpinner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.spinner {
+    position: relative;
+    border: 8px solid rgba(76, 168, 88, 0.3); 
+    border-top: 8px solid #4CA858; 
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    animation: spin 1.5s linear infinite;
+}
+
+.center-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px; /* Adjust as needed */
+    height: 60px; /* Adjust as needed */
+    border-radius: 50%;
+    object-fit: cover; /* Ensures image maintains aspect ratio */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+    </style>
 </head>
 <body>
     <div class="signup-container">
@@ -14,27 +56,43 @@
                 <a href="/"><div id="colorlib-logo"><img class="logo-header" src="images/new shoeAura.png" alt=""></div></a>
             </div>
             <h1>Get started now</h1>
-            <form action="/signUp" method="POST" onsubmit="return validateForm()">
+            <form id="signupForm">
                 <div class="form-group">
                     <label for="name">Name</label>
                     <input type="text" id="name" name="name" placeholder="Enter your name">
-                    <small class="error-message " id="name-error"></small>
+                    <small class="error-message" id="name-error"></small>
                 </div>
+            
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email" placeholder="Enter your email">
                     <small class="error-message" id="email-error"></small>
                 </div>
+            
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" placeholder="Enter your password">
                     <small class="error-message" id="password-error"></small>
                 </div>
+            
                 <div class="form-group">
                     <label for="confirm-password">Confirm Password</label>
                     <input type="password" id="confirm-password" name="confirmpassword" placeholder="Confirm your password">
                     <small class="error-message" id="confirm-password-error"></small>
                 </div>
+            
+                <div class="form-group">
+                    <label for="referral-code">Referral Code (Optional)</label>
+                    <input type="text" id="referral-code" name="referralCode" placeholder="Enter referral code (if any)">
+                    <small class="error-message" id="referral-code-error"></small>
+                </div>
+            
+                <div id="loadingSpinner" style="display: none;">
+                    <div class="spinner">
+                        <img src="images/shoeAura icon.png" alt="Loading" class="center-image">
+                    </div>
+                </div>
+            
                 <button type="submit" class="btn primary-btn">Sign Up</button>
             </form>
             <div class="or-separator">OR</div>
@@ -45,84 +103,83 @@
             <img src="images/about.jpg" alt="Signup illustration" />
         </div>
     </div>
+
     <script>
+       document.getElementById("signupForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    clearErrors();
+    document.getElementById('loadingSpinner').style.display = 'flex';
+
+    let isValid = true;
+   
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirm-password").value;
+    const referralCode = document.getElementById("referral-code").value.trim();
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const referralCodeRegex = /^[A-Z0-9]{6,10}$/; // Example format for referral codes
+
+    if (!name) {
+        showError("name-error", "Please enter your name.");
+        isValid = false;
+    }
+    if (!emailRegex.test(email)) {
+        showError("email-error", "Please enter a valid email.");
+        isValid = false;
+    }
+    if (password.length < 8) {
+        showError("password-error", "Password must be at least 8 characters.");
+        isValid = false;
+    }
+    if (password !== confirmPassword) {
+        showError("confirm-password-error", "Passwords do not match.");
+        isValid = false;
+    }
+    if (referralCode && !referralCodeRegex.test(referralCode)) {
+        showError("referral-code-error", "Invalid referral code format.");
+        isValid = false;
+    }
+
+    if (!isValid){
+        document.getElementById('loadingSpinner').style.display = 'none';
+        return;
+    } 
+
+    try {
+        const response = await fetch("/signUp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, password, confirmpassword: confirmPassword, referralCode }),
+        });
+
+        const data = await response.json();
+        document.getElementById('loadingSpinner').style.display = 'none';
+
+        if (data.success) {
+            Swal.fire({ icon: "success", title: "Success", text: "Verify OTP sent to email" })
+                .then(() => window.location.href = "/verifyOtp");
+        } else {
+            Swal.fire({ icon: "error", title: "Error", text: data.message });
+        }
+    } catch (error) {
+        document.getElementById('loadingSpinner').style.display = 'none';
+        Swal.fire({ icon: "error", title: "Error", text: "Something went wrong, try again." });
+    }
+});
+
         function clearErrors() {
-            document.querySelectorAll('.error-message').forEach(el => el.innerText = '');
+            document.querySelectorAll(".error-message").forEach(el => el.innerText = "");
+        }
+        function showError(id, message) {
+            document.getElementById(id).innerText = message;
         }
 
-        function validateForm() {
-            clearErrors();
-            let isValid = true;
-
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            if (!name) {
-                document.getElementById('name-error').innerText = 'Please enter your name.';
-                isValid = false;
-            }
-
-            if (!emailRegex.test(email)) {
-                document.getElementById('email-error').innerText = 'Please enter a valid email address.';
-                isValid = false;
-            }
-
-            if (password.length < 6) {
-                document.getElementById('password-error').innerText = 'Password must be at least 6 characters long.';
-                isValid = false;
-            }
-
-            if (password !== confirmPassword) {
-                document.getElementById('confirm-password-error').innerText = 'Passwords do not match.';
-                isValid = false;
-            }
-
-            return isValid;
-        }
-
-        document.getElementById('googleLoginBtn').addEventListener('click', () => {
-            // Redirect to Google OAuth login route
-            window.location.href = '/auth/google';
+        document.getElementById("googleLoginBtn").addEventListener("click", () => {
+            window.location.href = "/auth/google";
         });
-
-        // After redirect, check for code in the URL
-        window.addEventListener('load', function () {
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
-
-            if (code) {
-                fetch(`/auth/google/callback?code=${code}`, { method: 'GET' })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            const isLogin = data.isLogin;
-                            console.log("isLogin:", isLogin);
-                            localStorage.setItem('isLogin', isLogin);
-
-                            if (isLogin) {
-                                window.location.href = '/';  // Redirect to home
-                            }
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: data.message || 'Google login failed.',
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error during Google Sign-In:', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Something went wrong. Please try again.',
-                        });
-                    });
-            }
-        });
+        
     </script>
 </body>
 </html>

@@ -424,3 +424,18 @@ table td button {
         font-size: 12px;
     }
 }
+.dropdownOrsize{
+    display: inline-block; 
+    padding: 10px 20px; 
+    font-size: 16px; 
+    font-weight: bold; 
+    color: #fff; 
+    background-color: #333; 
+    border: 2px solid #4CA858;    
+    border-radius: 5px; 
+    cursor: pointer; 
+    text-align: center; 
+    text-decoration: none; 
+    margin-top: 10px; 
+    transition: background-color 0.3s ease;
+  }

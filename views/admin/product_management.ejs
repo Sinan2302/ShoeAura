@@ -14,9 +14,9 @@
             <a href="/admin/dashboard">Dashboard</a>
             <a href="/admin/usermanagement">User Management</a>
             <a class="clr" href="/admin/product_management">Products Management</a>
-            <a href="#">Order Management</a>
+            <a href="/admin/order_management">Order Management</a>
             <a href="/admin/category_management">Category Management</a>
-            <a href="#">Coupons Management</a>
+            <a href="/admin/coupon_management">Coupons Management</a>
             <a href="#"><form action="/admin/logout" method="POST">
                 <button type="submit" class="ban-btn btn-danger ">Logout</button>
             </form></a>
@@ -33,8 +33,8 @@
                 <!-- Search and Table Section -->
                 <div class="user-section">
                     <div class="search-container">
-                        <input type="text" class="form-control" id="searchInput" placeholder="Search products...">
-                        <button class="btn search-btn" onclick="searchProducts()" type="button">Search</button>
+                        <input type="text" class="form-control ms-auto" id="searchInput" placeholder="Search category..." oninput="searchCategory()">
+                        <button class="btn search-btn" type="button" onclick="goBack()">Back</button>                        
                         <a href="/admin/addproduct"><button class="btn search-btn" type="button">Add product</button></a>
                     </div>
 
@@ -48,7 +48,7 @@
                                     <th>OG Price</th>
                                     <th>Sale Price</th>
                                     <th>Product Offer</th>
-                                    <th>Stock Quantity</th>
+                                    <th>Total Stock Quantity</th>
                                     <th>Status</th>
                                     <th>view</th>
                                     <th>Update</th>
@@ -67,8 +67,8 @@
                                             <% } %>
                                         </td>
                                         <td><%= product.brand %></td>
-                                        <td>$<%= product.price %></td>
-                                        <td>$<%= product.SalePrice %></td>
+                                        <td>₹<%= product.price %></td>
+                                        <td>₹<%= product.SalePrice %></td>
                                         <td><%= product.productOffer %>%</td>
                                         <td><%=  stockQuantity = Array.from(product.sizes.values()).reduce((acc, cur) => acc + cur, 0) %></td>
                                         <td><%= product.isBlocked  || product.category.isBlocked || stockQuantity == 0 ? 'Out of Stock' : 'Available' %></td>
@@ -123,34 +123,22 @@
 
     <script>
 
-    function searchProducts() {
+let debounceTimer;
+
+function searchCategory() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
         const searchInput = document.getElementById("searchInput").value.toLowerCase();
-        const table = document.querySelector(".user-table tbody");
-        const rows = table.querySelectorAll("tr");
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('search', searchInput);
+        window.location.href = currentUrl.href;
+    }, 1000);
+}
 
-        rows.forEach(row => {
-            const productnameCell = row.cells[0];
-            const categoryCell = row.cells[1];
-            const brandCell = row.cells[2];
+function goBack(){
+    window.location.href = '/admin/product_management';
 
-            if (productnameCell && categoryCell && brandCell) {
-                const productname = productnameCell.textContent.toLowerCase();
-                const category = categoryCell.textContent.toLowerCase();
-                const brand = brandCell.textContent.toLowerCase();
-
-                if (
-                productname.includes(searchInput) ||
-                category.includes(searchInput) ||
-                brand.includes(searchInput)
-            ){
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none";
-                }
-            }
-        });
-    }
-
+}
     function blocked_product(productId) {
     fetch(`/admin/blocked_product/${productId}`, {  
         method: "POST",

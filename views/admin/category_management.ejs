@@ -13,9 +13,9 @@
             <a href="/admin/dashboard">Dashboard</a>
             <a href="/admin/usermanagement">User Management</a>
             <a href="/admin/product_management">Products Management</a>
-            <a href="#">Order Management</a>
+            <a href="/admin/order_management">Order Management</a>
             <a class="clr" href="/admin/category_management">Category Management</a>
-            <a href="#">Coupons Management</a>
+            <a href="/admin/coupon_management">Coupons Management</a>
             <a href="#"><form action="/admin/logout" method="POST">
                 <button type="submit" class="ban-btn btn-danger ">Logout</button>
             </form></a>
@@ -33,17 +33,19 @@
                 <!-- Search and Table Section -->
                 <div class="user-section">
                     <div class="search-container">
-                        <input type="text" class="form-control "  id="searchInput" placeholder="Search category...">
-                        <button class="btn search-btn" onclick="searchCategory()"  type="button">Search</button>
+                        <input type="text" class="form-control ms-auto" id="searchInput" placeholder="Search category..." oninput="searchCategory()">
+                        <button class="btn search-btn" type="button" onclick="goBack()">Back</button>
                         <a href="/admin/addcategory"><button class="btn search-btn" type="button">Add Category</button></a>
-                    </div>
 
+                    
+                    </div>
+                
                     <div class="table-container">
-                        <table class="user-table ">
+                        <table class="user-table">
                             <thead>
                                 <tr>
                                     <th>Category name</th>
-                                    <th>Discription</th>
+                                    <th>Description</th>
                                     <th>Category Offer</th>
                                     <th>Created Date</th>
                                     <th>Updated Date</th>
@@ -52,91 +54,72 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Example Rows -->
-                                <tr>
-                                    
-                                    <% categories.forEach(category => { %>
-                                        <tr>
-                                            <td><%= category.categoryname %></td>
-                                            <td><%= category.description %></td>
-                                            <td><%= category.categoryOffer %>%</td>
-                                            <td><%= new Date(category.createdAt).toLocaleDateString() %></td>
-                                            <td><%= new Date(category.updatedAt).toLocaleDateString() %></td>
-                                            <td>
-                                                <button class="btn update-btn" onclick="window.location.href='/admin/updateCategory/<%= category._id %>'">Update</button>
-                                                
-                                            </td>
-                                            <td>
-                                                <% if (category.isBlocked) { %>
-                                                    <button class="btn unban-btn" onclick="Unblocked_category('<%= category._id %>', 'unblock')">Unblock</button>
-                                                <% } else { %>
-                                                    <button class="btn ban-btn" onclick="blocked_category('<%= category._id %>', 'block')">Block</button>
-                                                <% } %>
-                                            </td> 
-                                        </tr>
-                                    <% }); %>
-                                    
-                              
-                                <!-- Add dynamic rows here -->
+                                <% categories.forEach(category => { %>
+                                    <tr>
+                                        <td><%= category.categoryname %></td>
+                                        <td><%= category.description %></td>
+                                        <td><%= category.categoryOffer %>%</td>
+                                        <td><%= new Date(category.createdAt).toLocaleDateString() %></td>
+                                        <td><%= new Date(category.updatedAt).toLocaleDateString() %></td>
+                                        <td>
+                                            <button class="btn update-btn" onclick="window.location.href='/admin/updateCategory/<%= category._id %>'">Update</button>
+                                        </td>
+                                        <td>
+                                            <% if (category.isBlocked) { %>
+                                                <button class="btn unban-btn" onclick="Unblocked_category('<%= category._id %>', 'unblock')">Unblock</button>
+                                            <% } else { %>
+                                                <button class="btn ban-btn" onclick="blocked_category('<%= category._id %>', 'block')">Block</button>
+                                            <% } %>
+                                        </td> 
+                                    </tr>
+                                <% }); %>
                             </tbody>
                         </table>
                     </div>
                     <div class="row">
                         <div class="col-md-12 text-center">
-                            <div class="block-27 " style="display: flex; justify-content: center; align-items: center; padding: 10px;">
-                           <ul>
-                            <% if (currentPage > 1) { %>
-                                <li><a href="?page=<%= currentPage - 1 %>"><i class="ion-ios-arrow-back"></i></a></li>
-                            <% } %>
-            
-                            <% for (let i = 1; i <= totalPages; i++) { %>
-                                <li class="<%= i === currentPage ? 'active' : '' %>">
-                                    <a href="?page=<%= i %>"><%= i %></a>
-                                </li>
-                            <% } %>
-            
-                            <% if (currentPage < totalPages) { %>
-                                <li><a href="?page=<%= currentPage + 1 %>"><i class="ion-ios-arrow-forward"></i></a></li>
-                            <% } %>
-                           </ul>
+                            <div class="block-27" style="display: flex; justify-content: center; align-items: center; padding: 10px;">
+                                <ul>
+                                    <% if (currentPage > 1) { %>
+                                        <li><a href="?page=<%= currentPage - 1 %>&search=<%= searchQuery %>"><i class="ion-ios-arrow-back"></i></a></li>
+                                    <% } %>
+                
+                                    <% for (let i = 1; i <= totalPages; i++) { %>
+                                        <li class="<%= i === currentPage ? 'active' : '' %>">
+                                            <a href="?page=<%= i %>&search=<%= searchQuery %>"><%= i %></a>
+                                        </li>
+                                    <% } %>
+                
+                                    <% if (currentPage < totalPages) { %>
+                                        <li><a href="?page=<%= currentPage + 1 %>&search=<%= searchQuery %>"><i class="ion-ios-arrow-forward"></i></a></li>
+                                    <% } %>
+                                </ul>
+                            </div>
                         </div>
-                    </div>
+                    </div> 
                 </div>
+                               
             </div>    
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+let debounceTimer;
 
 function searchCategory() {
-    const searchInput = document.getElementById("searchInput").value.toLowerCase();
-    const table = document.querySelector(".user-table tbody");
-    const rows = table.querySelectorAll("tr");
-
-    rows.forEach(row => {
-        const categorynameCell = row.cells[0];
-        const descriptionCell = row.cells[1];
-        const offerCell = row.cells[2];
-
-        if (categorynameCell && descriptionCell && offerCell) {
-            const categoryname = categorynameCell.textContent.toLowerCase();
-            const description = descriptionCell.textContent.toLowerCase();
-            const offer = offerCell.textContent.toLowerCase();
-
-            if (
-                categoryname.includes(searchInput) ||
-                description.includes(searchInput) ||
-                offer.includes(searchInput)
-            ) {
-                row.style.display = ""; 
-            } else {
-                row.style.display = "none";
-            }
-        }
-    });
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        const searchInput = document.getElementById("searchInput").value.toLowerCase();
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('search', searchInput);
+        window.location.href = currentUrl.href;
+    }, 1000); // Wait for 500 milliseconds after the user stops typing
 }
 
+function goBack(){
+    window.location.href = '/admin/category_management';
 
+}
 
         function blocked_category(categoryId) {
             fetch(`/admin/blocked_category/${categoryId}`, {  

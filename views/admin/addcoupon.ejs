@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/admin/user_management.css">
+    <title>Add Coupon</title>
+    <link rel="icon" type="image/png" href="/images/shoeAura icon.png">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+
+   
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/usermanagement">User Management</a>
+            <a href="/admin/product_management">Products Management</a>
+            <a href="/admin/order_management">Order Management</a>
+            <a class="clr" href="/admin/category_management">Category Management</a>
+            <a href="/admin/coupon_management">Coupons Management</a>
+        </div>
+        <div class="main-content">
+            <nav class="navbar">
+                <a class="navbar-brand">
+                    <div id="colorlib-logo">
+                        <img class="logo-header" src="/images/new shoeAura.png" alt="">
+                    </div>
+                </a>
+            </nav>
+        
+            <div class="content">
+                <h1>Coupon Management</h1>
+        
+                <!-- Add Coupon Form -->
+                <div class="add-user-form">
+                    <h2>Add Coupon</h2>
+                    <form id="couponForm">
+                        <div class="form-group">
+                            <label for="couponCode">Coupon Code:</label>
+                            <input type="text" id="couponCode" name="couponCode" placeholder="Enter Coupon Code" required>
+                            <small class="helper-text">Please provide a unique coupon code.</small>
+                            <div class="invalid-feedback" style="display: none; color: red;">Coupon code is required.</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="offerPrice">Offer Price:</label>
+                            <input type="number" id="offerPrice" name="offerPrice" placeholder="Enter Offer Price" required>
+                            <small class="helper-text">Enter the discount amount.</small>
+                            <div class="invalid-feedback" style="display: none; color: red;">Offer price must be greater than 0.</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="minPurchase">Minimum Purchase:</label>
+                            <input type="number" id="minPurchase" name="minPurchase" placeholder="Enter Minimum Purchase" required>
+                            <small class="helper-text">Enter the minimum purchase amount required to use the coupon.</small>
+                            <div class="invalid-feedback" style="display: none; color: red;">Minimum purchase must be 0 or greater.</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="expiresOn">Expiration Date:</label>
+                            <input type="date" id="expiresOn" name="expiresOn" required>
+                            <small class="helper-text">Select the expiration date for the coupon.</small>
+                            <div class="invalid-feedback" style="display: none; color: red;">Expiration date is required.</div>
+                        </div>
+                        
+                        
+                        <div id="loadingSpinner" style="display: none;">
+                            <div class="spinner">
+                                <img src="/images/shoeAura icon.png" alt="Loading" class="center-image">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn add-user-btn">Add Coupon</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.getElementById("couponForm");
+        
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+        
+                const couponCode = document.getElementById("couponCode");
+                const offerPrice = document.getElementById("offerPrice");
+                const minPurchase = document.getElementById("minPurchase");
+                const expiresOn = document.getElementById("expiresOn");
+        
+                const couponCodeError = couponCode.nextElementSibling.nextElementSibling;
+                const offerPriceError = offerPrice.nextElementSibling.nextElementSibling;
+                const minPurchaseError = minPurchase.nextElementSibling.nextElementSibling;
+                const expiresOnError = expiresOn.nextElementSibling.nextElementSibling;
+        
+                let isValid = true;
+        
+                if (couponCode.value.trim() === "") {
+                    couponCodeError.style.display = "block";
+                    couponCode.style.border = "1px solid red";
+                    isValid = false;
+                } else {
+                    couponCodeError.style.display = "none";
+                    couponCode.style.border = "";
+                }
+        
+                if (offerPrice.value.trim() === "" || isNaN(offerPrice.value) || offerPrice.value <= 0) {
+                    offerPriceError.style.display = "block";
+                    offerPrice.style.border = "1px solid red";
+                    isValid = false;
+                } else {
+                    offerPriceError.style.display = "none";
+                    offerPrice.style.border = "";
+                }
+        
+                if (minPurchase.value.trim() === "" || isNaN(minPurchase.value) || minPurchase.value < 0) {
+                    minPurchaseError.style.display = "block";
+                    minPurchase.style.border = "1px solid red";
+                    isValid = false;
+                } else {
+                    minPurchaseError.style.display = "none";
+                    minPurchase.style.border = "";
+                }
+        
+                if (expiresOn.value.trim() === "") {
+                    expiresOnError.style.display = "block";
+                    expiresOn.style.border = "1px solid red";
+                    isValid = false;
+                } else {
+                    expiresOnError.style.display = "none";
+                    expiresOn.style.border = "";
+                }
+        
+                if (!isValid) return;
+        
+                const formData = {
+                    couponCode: couponCode.value.trim(),
+                    offerPrice: offerPrice.value,
+                    minPurchase: minPurchase.value,
+                    expiresOn: expiresOn.value
+                };
+        
+                try {
+                    const response = await fetch("/admin/addcoupon", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(formData),
+                    });
+        
+                    const result = await response.json();
+        
+                    if (result.success) {
+                        Swal.fire({
+                            title: "Success!",
+                            text: result.message,
+                            icon: "success",
+                            confirmButtonText: "OK",
+                        }).then(() => {
+                            window.location.href = '/admin/coupon_management';
+                        }); 
+                   } else {
+                        Swal.fire({
+                            title: "Error!",
+                            text: result.message,
+                            icon: "error",
+                            confirmButtonText: "Try Again",
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    Swal.fire({
+                        title: "Server Error",
+                        text: "Something went wrong while adding the coupon.",
+                        icon: "error",
+                        confirmButtonText: "OK",
+                    });
+                }
+            });
+        });
+        </script>
+        
+        
+</body>

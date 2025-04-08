@@ -1,32 +1,7 @@
-<div class="colorlib-partner" id="page">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-8 offset-sm-2 text-center colorlib-heading colorlib-heading-sm">
-                <h2>Trusted Partners</h2>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col partner-col text-center">
-                <img src="/images/brand-1.jpg" class="img-fluid" alt="Free html4 bootstrap 4 template">
-            </div>
-            <div class="col partner-col text-center">
-                <img src="/images/brand-2.jpg" class="img-fluid" alt="Free html4 bootstrap 4 template">
-            </div>
-            <div class="col partner-col text-center">
-                <img src="/images/brand-3.jpg" class="img-fluid" alt="Free html4 bootstrap 4 template">
-            </div>
-            <div class="col partner-col text-center">
-                <img src="/images/brand-4.jpg" class="img-fluid" alt="Free html4 bootstrap 4 template">
-            </div>
-            <div class="col partner-col text-center">
-                <img src="/images/brand-5.jpg" class="img-fluid" alt="Free html4 bootstrap 4 template">
-            </div>
-        </div>
-    </div>
-</div>
 
-<footer id="colorlib-footer" role="contentinfo" >
-    <div class="container">
+
+<footer id="colorlib-footer " role="contentinfo" >
+    <div class="container fottop">
         <div class="row row-pb-md">
             <div class="col footer-col colorlib-widget">
                 <h4>About Footwear</h4>
@@ -105,7 +80,21 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 <div class="gototop js-top">
 <a href="#" class="js-gotop"><i class="ion-ios-arrow-up"></i></a>
 </div>
-
+<script> 
+    document.addEventListener("DOMContentLoaded", function() { 
+        const searchForm = document.getElementById('searchForm'); 
+        searchForm.addEventListener('submit', function(event) { 
+            event.preventDefault(); 
+            const searchInput = document.getElementById('searchInput').value.trim(); 
+            if (searchInput) { 
+                console.log(`Searching for: ${searchInput}`); 
+                window.location.href = `/search?query=${encodeURIComponent(searchInput)}`; 
+            }else { 
+                alert('Please enter a search term.'); 
+            } 
+        }); 
+    }); 
+</script>
 <!-- jQuery -->
 <script src="js/jquery.min.js"></script>
 <!-- popper -->

@@ -105,40 +105,44 @@
         });
 
         function resendOtp() {
-            clearInterval(timerInterval);
-            countdown = 30;
-            resendButton.disabled = true;
-            timerInterval = setInterval(updateTimer, 1000);
+    clearInterval(timerInterval);
+    countdown = 30;
+    resendButton.disabled = true;
+    timerInterval = setInterval(updateTimer, 1000);
 
-            fetch('/resendOtp', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            })
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'OTP Resent',
-                        text: 'The OTP has been resent to your email.',
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: data.message || 'Failed to resend OTP.',
-                    });
-                }
-            })
-            .catch(error => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'An error occurred while resending OTP.',
-                });
+    fetch('/resendOtp', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())  // ✅ Convert response to JSON
+    .then(data => {
+        console.log("Resend OTP Response:", data); // Debugging
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'OTP Resent',
+                text: data.message,
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message || 'Failed to resend OTP.',
             });
         }
+    })
+    .catch(error => {
+        console.error("Error resending OTP:", error); // Debugging
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while resending OTP.',
+        });
+    });
+}
+
     </script>
 </body>
 </html>

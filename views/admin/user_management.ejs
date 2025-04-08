@@ -14,9 +14,9 @@
             <a href="/admin/dashboard">Dashboard</a>
             <a class="clr" href="/admin/usermanagement">User Management</a>
             <a href="/admin/product_management">Products Management</a>
-            <a href="#">Order Management</a>
+            <a href="/admin/order_management">Order Management</a>
             <a href="/admin/category_management">Category Management</a>
-            <a href="#">Coupons Management</a>
+            <a href="/admin/coupon_management">Coupons Management</a>
             <a href="#"><form action="/admin/logout" method="POST">
                 <button type="submit" class="ban-btn btn-danger ">Logout</button>
             </form></a>
@@ -34,8 +34,8 @@
                 <!-- Search and Table Section -->
                 <div class="user-section">
                     <div class="search-container">
-                        <input type="text" class="form-control" id="searchInput" placeholder="Search Users...">
-                        <button class="btn search-btn"  onclick="searchUser()" type="button">Search</button>
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search Users..." oninput="searchUser()">
+                        <button class="btn search-btn" type="button" onclick="goBack()">Back</button>                        
                     </div>
 
                     <div class="table-container">
@@ -56,7 +56,7 @@
                                             <td><%= user.name %></td>
                                             <td><%= user.email %></td>
                                             <td><%= user.phone %></td>
-                                            <td><%= user.createdOn %></td>
+                                            <td><%= new Date(user.createdOn).toLocaleDateString() %></td>
                                             <td>
                                                 <% if (user.isBlocked) { %>
                                                     <button class="btn unban-btn" onclick="UnbanUser('<%= user._id %>')">Unban</button>
@@ -67,11 +67,30 @@
                                             </td> 
                                         </tr>
                                     <% }); %>
-                                
-                            
                                 <!-- Add dynamic rows here -->
                             </tbody>
                         </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <div class="block-27" style="display: flex; justify-content: center; align-items: center; padding: 10px;">
+                                <ul>
+                                    <% if (currentPage > 1) { %>
+                                        <li><a href="?page=<%= currentPage - 1 %>&search=<%= searchQuery %>"><i class="ion-ios-arrow-back"></i></a></li>
+                                    <% } %>
+                
+                                    <% for (let i = 1; i <= totalPages; i++) { %>
+                                        <li class="<%= i === currentPage ? 'active' : '' %>">
+                                            <a href="?page=<%= i %>&search=<%= searchQuery %>"><%= i %></a>
+                                        </li>
+                                    <% } %>
+                
+                                    <% if (currentPage < totalPages) { %>
+                                        <li><a href="?page=<%= currentPage + 1 %>&search=<%= searchQuery %>"><i class="ion-ios-arrow-forward"></i></a></li>
+                                    <% } %>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -79,20 +98,28 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function searchUser() {
-            const searchInput = document.getElementById("searchInput").value.toLowerCase();
-            const table = document.querySelector(".user-table tbody");
-            const rows = table.querySelectorAll("tr");
+       let debounceTimer;
 
-            rows.forEach(row => {
-                const username = row.cells[0].textContent.toLowerCase(); 
-                if (username.includes(searchInput)) {
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none"; 
-                }
-            });
+function searchUser() {
+    clearTimeout(debounceTimer);  // Clear previous timeout
+
+    debounceTimer = setTimeout(() => {
+        const searchInput = document.getElementById("searchInput").value.trim().toLowerCase();
+        const currentUrl = new URL(window.location.href);
+
+        if (searchInput) {
+            currentUrl.searchParams.set('search', searchInput);
+        } else {
+            currentUrl.searchParams.delete('search'); // Remove empty search param
         }
+
+        window.location.href = currentUrl.href;
+    }, 1000);  // 1-second delay for debouncing
+}
+function goBack(){
+    window.location.href = '/admin/usermanagement';
+
+}
 
         function banUser(userId) {
             fetch(`/admin/banUser/${userId}`, {  

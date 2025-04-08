@@ -1,28 +1,9 @@
 const multer = require('multer');
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'public/uploads'); 
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`); 
-    },
-});
-
+const storage = multer.memoryStorage(); 
 const upload = multer({
-    storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => {
-        if (file.mimetype.startsWith('image/')) {
-            cb(null, true); 
-        } else {
-            cb(new Error('Only image files are allowed!'), false);
-        }
-    },
-});
+  storage: storage,
+  limits: { fileSize: 1024 * 1024 * 5 }, 
+}).fields([{ name: 'croppedImages', maxCount: 5 }]); 
 
-const uploadFields = upload.fields([
-    { name: 'productImages', maxCount: 5 },
-]);
-
-module.exports = { uploadFields };
+module.exports = upload;

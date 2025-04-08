@@ -1,0 +1,901 @@
+<%- include('../../views/partials/user/header.ejs', {isLogin: typeof isLogin !== 'undefined' ? isLogin : false}) %>
+
+			
+			
+
+		<div class="breadcrumbs">
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<p class="bread">
+							<% breadcrumbs.forEach((crumb, index) => { %>
+								<span>
+									<a style="color:tomato;" href="<%= crumb.url %>"><%= crumb.name %></a>
+								</span>
+								<% if (index < breadcrumbs.length - 1) { %> / <% } %>
+							<% }) %>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row row-pb-lg">
+			<div class="col-sm-10 offset-md-1">
+				<div class="checkout-progress-wrapper">
+					<div class="checkout-progress-bar">
+						<div class="checkout-progress-line"></div>
+					</div>
+					<div class="checkout-steps">
+						<div class="checkout-step checkout-active" data-step="1">
+							<div class="checkout-step-number">01</div>
+							<h3>Shopping Cart</h3>
+						</div>
+						<div class="checkout-step checkout-active" data-step="2">
+							<div class="checkout-step-number">02</div>
+							<h3>Checkout</h3>
+						</div>
+						<div class="checkout-step" data-step="3">
+							<div class="checkout-step-number">03</div>
+							<h3>Order Complete</h3>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>	
+
+		<div class="colorlib-product">
+			<div class="container">	
+				<div class="cart-summary">
+				<div class="summary-head">
+					<h4 class="cart-title">Order Summary</h4>
+				</div>
+					<div class="cart-items">
+						<% cartProducts.forEach(product => { %>
+							<div class="cart-item">
+								<img src="<%= product.image.includes('http') ? product.image : '/uploads/' + product.image %>" 
+									alt="<%= product.name %>" class="product-image">
+								
+								<div class="product-details">
+									<h5 class="product-name name-feild"><%= product.name %></h5>
+									<p class="product-info">Size: <%= product.size %> | Qty: <%= product.quantity %></p>
+								</div>
+		
+								<span class="product-price">₹<%= product.price %></span>
+							</div>
+						<% }) %>
+					</div>
+		
+					<div class="cart-total">
+						<h5>Total: ₹<%= cartTotal.toFixed(2) %></h5>
+					</div>
+				</div>
+			</div>
+		</div>
+					
+		<div class="colorlib-product">
+			<div class="container">			
+				<div class="row">
+					<!-- Delivery Address Section -->
+					<div class="col-lg-8">
+						<div id="myAddress" class="profile-card">
+							<div class="profile-header">
+								<h4 class="profile-title">Delivery Address</h4>
+								<button class="btn-add-address" onclick="openEditModal()">+ Add New Address</button>
+							</div>
+							
+							<div class="profile-body">
+								<div id="existingAddresses" class="address-container">
+									<% addresses.forEach(addrDoc => { %> 
+										<% addrDoc.address.forEach(addr => { %> 
+											<div id="addressCard-<%= addr._id %>" class="address-card">
+												<input type="radio" name="selectedAddress" id="address-<%= addr._id %>" value="<%= addr._id %>">
+												<label for="address-<%= addr._id %>">
+													<h3 class="address-type"><%= addr.addressType %></h3>
+													<p class="address-name"><strong><%= addr.name %></strong></p>
+													<p class="address-phone"><i class="fa fa-phone"></i> <%= addr.phone %></p>
+													<p class="address-details"><%- addr.address.replace(/\n/g, "<br>") %></p>
+													<% if (addr.landmark) { %>
+														<p class="address-landmark"><i class="fa fa-map-marker"></i> <%= addr.landmark %></p>
+													<% } %>
+													<p class="address-location">
+														<i class="fa fa-map"></i> <%= addr.city %>, <%= addr.state %>, <%= addr.pincode %>
+													</p>
+												</label>
+											</div>
+										<% }) %>
+									<% }) %>
+								</div>
+							</div>
+						</div>
+					</div>
+		
+					<!-- Payment and Order Details -->
+					<div class="col-lg-4">
+						<div class="cart-detail">
+							<h2>Cart Total</h2>
+							<ul>
+								<li><span>Subtotal</span> <span>₹<%= cartTotal.toFixed(2) %></span></li>
+								<li><span>Shipping</span> <span>₹<%= shippingFee.toFixed(2) %></span></li>
+                                <li><span>Discount:</span> <span id="discountAmount">₹<%- discountAmount %></span></li>
+								<li><span>Order Total</span> <span class="cart-tota">₹<%= (cartTotal + shippingFee - discountAmount).toFixed(2) %></span></li>
+							</ul>
+						</div>
+					
+						<div class="cart-detail mt-3">
+                            <h2>Payment Method</h2>
+                            <ul>
+                                <li>
+                                    <input type="radio" id="cod" name="payment" value="cod" checked>
+                                    <label for="COD">Cash on Delivery</label>
+                                </li>
+                                <li>
+                                    <input type="radio" id="razorpay" name="payment" value="Razorpay">
+                                    <label for="razorpay">Razorpay</label>
+                                </li>
+                                <li>
+                                    <input type="radio" id="wallet" name="payment" value="Wallet">
+                                    <label for="wallet">(Balance:  ₹<%= user.wallet.balance %>)<span id="walletBalance">Wallet </span></label>
+                                </li>
+                            </ul>
+                        </div>
+                        
+					
+						<div class="text-center mt-3">
+							<p><button id="placeOrderBtn" class="btn btn-primary place-order">Place an order</button></p>
+						</div>						
+					</div>					
+				</div>
+			</div>
+		</div>
+
+		<!--ADD Address MODAL-->>
+		<div id="editProfileModal" style="display: none;" class="modal">
+			<div class="modal-content">
+				<span class="close" onclick="closeEditModal()">&times;</span>
+				<h2>Add Address</h2>
+				<form id="editProfileForm">
+					<div class="form-group">
+						<div>
+							<label for="edit-name">Full Name:</label>
+							<input type="text" id="edit-name" name="name" placeholder="Enter the Full Name" >
+							<small class="error-message" style="color: tomato;" id="name-error"></small>
+						</div>
+						<div>
+							<label for="edit-phone">Phone Number:</label>
+							<input type="number" id="edit-phone" name="phone" placeholder="Enter the 10 digit Phone Number">
+							<small class="error-message" style="color: tomato;" id="phone-error"></small>
+						</div>
+					</div>
+	
+					<div class="form-group">
+						<div>
+							<label for="edit-pincode">Pincode:</label>
+							<input type="number" id="edit-pincode" name="pincode" placeholder="Enter the 6 digit pincode" >
+							<small class="error-message" style="color: tomato;" id="pincode-error"></small>
+						</div>
+						<div>
+							<label for="edit-landmark">Landmark:</label>
+							<input type="text" id="edit-landmark" name="landmark" placeholder="Enter the landmark near your location" >
+							<small class="error-message" style="color: tomato;" id="landmark-error"></small>
+						</div>
+					</div>
+	
+					<label for="edit-address">Address:</label>
+					<textarea id="edit-address" name="address" placeholder="Enter Building name/no. and Street" ></textarea>
+					<small class="error-message" style="color: tomato;" id="address-error"></small>
+	
+					<div class="form-group">
+						<div>
+							<label for="edit-city">City:</label>
+							<input type="text" id="edit-city" name="city" placeholder="Enter the City/District" >
+							<small class="error-message" style="color: tomato;" id="city-error"></small>
+						</div>
+						<div>
+							<label for="edit-state">State:</label>
+							<select id="edit-state" name="state">
+								<option value="">Select a State</option>
+								<option value="Andhra Pradesh">Andhra Pradesh</option>
+								<option value="Arunachal Pradesh">Arunachal Pradesh</option>
+								<option value="Assam">Assam</option>
+								<option value="Bihar">Bihar</option>
+								<option value="Chhattisgarh">Chhattisgarh</option>
+								<option value="Goa">Goa</option>
+								<option value="Gujarat">Gujarat</option>
+								<option value="Haryana">Haryana</option>
+								<option value="Himachal Pradesh">Himachal Pradesh</option>
+								<option value="Jharkhand">Jharkhand</option>
+								<option value="Karnataka">Karnataka</option>
+								<option value="Kerala">Kerala</option>
+								<option value="Madhya Pradesh">Madhya Pradesh</option>
+								<option value="Maharashtra">Maharashtra</option>
+								<option value="Manipur">Manipur</option>
+								<option value="Meghalaya">Meghalaya</option>
+								<option value="Mizoram">Mizoram</option>
+								<option value="Nagaland">Nagaland</option>
+								<option value="Odisha">Odisha</option>
+								<option value="Punjab">Punjab</option>
+								<option value="Rajasthan">Rajasthan</option>
+								<option value="Sikkim">Sikkim</option>
+								<option value="Tamil Nadu">Tamil Nadu</option>
+								<option value="Telangana">Telangana</option>
+								<option value="Tripura">Tripura</option>
+								<option value="Uttar Pradesh">Uttar Pradesh</option>
+								<option value="Uttarakhand">Uttarakhand</option>
+								<option value="West Bengal">West Bengal</option>
+								<option value="Chandigarh">Chandigarh</option>
+								<option value="Delhi">Delhi</option>
+								<option value="Jammu and Kashmir">Jammu and Kashmir</option>
+							 
+							</select>
+							
+							<small class="error-message" style="color: tomato;" id="state-error"></small>
+						</div>
+					</div>
+	
+					<label for="edit-addressType">Address Type:</label>
+					<select id="edit-addressType" name="addressType">
+						<option value="">Select Address Type</option>
+						<option value="Home">Home</option>
+						<option value="Work">Work</option>
+					</select>
+					<small class="error-message" style="color: tomato;" id="addressType-error"></small>
+	
+					<button type="submit" class="btn-save">Save Address</button>
+				</form>
+			</div>
+		</div>
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+		<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+		<script>
+
+		function openEditModal(){
+			document.getElementById('editProfileModal').style.display = 'flex'
+		}
+
+		function closeEditModal(){
+			document.getElementById('editProfileModal').style.display = 'none'
+		}
+
+		document.getElementById('editProfileForm').addEventListener('submit',async function(e){
+        e.preventDefault()
+
+        let isValid = true;
+        const name = document.getElementById('edit-name').value.trim()
+        const phone = document.getElementById('edit-phone').value.trim()
+        const pincode = document.getElementById('edit-pincode').value.trim();
+        const landmark = document.getElementById('edit-landmark').value.trim()
+        const address = document.getElementById('edit-address').value.trim()
+        const city = document.getElementById('edit-city').value.trim()
+        const state = document.getElementById('edit-state').value.trim()
+        const addressType = document.getElementById('edit-addressType').value.trim()
+        const validPhone = phone.length==10
+
+        document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+
+        if (name === '') {
+            document.getElementById('name-error').textContent = 'Full Name is required';
+            isValid = false;
+        }
+
+        if (!/^\d{10}$/.test(phone)) {
+            document.getElementById('phone-error').textContent = 'Enter a valid 10-digit phone number';
+            isValid = false;
+        }
+
+        if (!/^\d{6}$/.test(pincode)) {
+            document.getElementById('pincode-error').textContent = 'Enter a valid 6-digit pincode';
+            isValid = false;
+        }
+
+        if (address === '') {
+            document.getElementById('address-error').textContent = 'Address is required';
+            isValid = false;
+        }
+
+        if (city === '') {
+            document.getElementById('city-error').textContent = 'City is required';
+            isValid = false;
+        }
+
+        if (state === '') {
+            document.getElementById('state-error').textContent = 'Please select a state';
+            isValid = false;
+        }
+
+        if (addressType === '') {
+            document.getElementById('addressType-error').textContent = 'Please select an address type';
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+
+            try {
+                const response = await fetch("/addAddress", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, phone, pincode, landmark, address, city, state, addressType }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({ icon: "success", title: "Success", text: data.message })
+                        .then(() => {
+                            window.location.reload(); 
+                        });
+                } else {
+                    Swal.fire({ icon: "error", title: "Error", text: data.message });
+                }
+
+            } catch (error) {
+                Swal.fire({ icon: "error", title: "Error", text: "Something went wrong, try again." });
+            }
+
+    })
+
+	document.getElementById("placeOrderBtn").addEventListener("click", async function () {
+    const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked')?.value;
+    const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value;
+
+    if (!selectedAddress) {
+        Toastify({
+            text: "Please select a delivery address.",
+            duration: 3000,
+            gravity: "bottom",
+            position: "center",
+            style: { background: "linear-gradient(to right, #ff5f6d, #ffc371)" },
+            stopOnFocus: true,
+        }).showToast();
+        return;
+    }
+
+    if (!paymentMethod) {
+        Toastify({
+            text: "Please select a payment method.",
+            duration: 3000,
+            gravity: "bottom",
+            position: "center",
+            style: { background: "linear-gradient(to right, #ff5f6d, #ffc371)" },
+            stopOnFocus: true,
+        }).showToast();
+        return;
+    }
+
+    const confirmOrder = await Swal.fire({
+        title: "Are you sure?",
+        text: "Do you want to place this order?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, Place Order!",
+    });
+
+    if (!confirmOrder.isConfirmed) return;
+
+    try {
+        placeOrderBtn.disabled = true;
+        placeOrderBtn.innerText = "Processing...";
+
+        const response = await fetch("/placeOrder", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ selectedAddress, paymentMethod }),
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {  
+            Toastify({
+                text: result.message || "Failed to place order. Please try again.",
+                duration: 3000,
+                gravity: "bottom",
+                position: "center",
+                style: { background: "linear-gradient(to right, #ff5f6d, #ffc371)" },
+                stopOnFocus: true,
+            }).showToast();
+            return;
+        }
+
+        if (paymentMethod === "Razorpay") {
+            const options = {
+                key: result.key,
+                amount: result.amount * 100,
+                currency: result.currency,
+                name: "Your E-Commerce Store",
+                description: "Order Payment",
+                order_id: result.razorpayOrderId,
+                handler: async function (response) {
+                    const verifyRes = await fetch("/verifyPayment", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            orderId: result.orderId,
+                        }),
+                    });
+
+                    const verifyResult = await verifyRes.json();
+                    if (verifyResult.success) {
+                        window.location.href = "/SuccessOrder";
+                    } else {
+                        alert("Payment verification failed. Please try again.");
+                    }
+                },
+                prefill: {
+                    name: "Customer Name",
+                    email: "customer@example.com",
+                    contact: "9999999999",
+                },
+                theme: {
+                    color: "#3399cc",
+                },
+                modal: {
+                    escape: true,
+                    ondismiss: function () {
+                        Toastify({
+                            text: "Payment was cancelled!",
+                            duration: 3000,
+                            gravity: "bottom",
+                            position: "center",
+                            style: { background: "linear-gradient(to right, #ff5f6d, #ffc371)" },
+                            stopOnFocus: true,
+                        }).showToast();
+                    },
+                },
+            };
+
+            const razorpay = new Razorpay(options);
+            razorpay.open();
+        } else {
+            window.location.href = "/SuccessOrder";
+        }
+    } catch (error) {
+        console.error("Error placing order:", error);
+        Toastify({
+            text: "Something went wrong. Please try again later.",
+            duration: 3000,
+            gravity: "bottom",
+            position: "center",
+            style: { background: "linear-gradient(to right, #ff5f6d, #ffc371)" },
+            stopOnFocus: true,
+        }).showToast();
+    } finally {
+        placeOrderBtn.disabled = false;
+        placeOrderBtn.innerText = "Place Order";
+    }
+});
+
+
+
+		</script>
+
+
+		<style>
+	.checkout-progress-wrapper {
+    position: relative !important;
+    max-width: 800px !important;
+    margin: auto !important;
+    padding: 20px 0 !important;
+}
+
+/* Progress Bar */
+.checkout-progress-bar {
+    position: absolute !important;
+    top: 50% !important;
+    left: 10% !important;
+    width: 80% !important;
+    height: 4px !important;
+    background: #ddd !important;
+    z-index: 0 !important;
+    transform: translateY(-50%) !important;
+}
+
+.checkout-progress-line {
+    height: 100% !important;
+    background: #5ca4f0 !important;
+    width: 66% !important; /* Adjust based on active steps */
+    transition: width 0.4s ease-in-out !important;
+}
+
+/* Steps Container */
+.checkout-steps {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* Individual Steps */
+.checkout-step {
+    text-align: center !important;
+    width: 33% !important;
+    position: relative !important;
+}
+
+/* Step Numbers */
+.checkout-step-number {
+    width: 50px !important;
+    height: 50px !important;
+    line-height: 50px !important;
+    background: #ccc !important;
+    color: white !important;
+    font-weight: bold !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    font-size: 18px !important;
+    margin: auto !important;
+    transition: background 0.3s ease-in-out !important;
+}
+
+/* Active Step */
+.checkout-step.checkout-active .checkout-step-number {
+    background: #5ca4f0 !important;
+    color: white !important;
+}
+
+/* Step Titles */
+.checkout-step h3 {
+    margin-top: 10px !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    color: #444 !important;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .checkout-progress-wrapper {
+        max-width: 100% !important;
+    }
+    .checkout-progress-bar {
+        left: 5% !important;
+        width: 90% !important;
+    }
+}
+
+/* Delivery Address Header */
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #5ca4f0; /* Light Background */
+    padding: 15px;
+    border-radius: 10px;
+    color: #333;
+}
+
+.profile-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff; /* Dark Green */
+}
+
+.btn-add-address {
+    padding: 8px 15px;
+    background: linear-gradient(to right, #ff5f6d, #ff9966); /* Coral Red */
+    color: rgb(255, 255, 255);
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-add-address:hover {
+    background: linear-gradient(to right, #f6d365, #fda085) !important;
+    color: black;/* Darker Coral */
+}
+
+
+/* Address Container */
+.address-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+/* Individual Address Card */
+.address-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 15px;
+    border: 2px solid #343634; /* Light Green Border */
+    border-radius: 10px;
+    background: #f0f0f0; /* Soft Green Background */
+    position: relative;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+    color: #333;
+}
+
+.address-card:hover {
+    background: #ffffff; /* Slightly Darker Green */
+}
+
+/* Radio Button (Top-Left) */
+.address-card input[type="radio"] {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 18px;
+    height: 18px;
+    accent-color: #000000;
+    cursor: pointer;
+}
+
+/* Address Content */
+.address-card label {
+    width: 100%;
+    cursor: pointer;
+    padding-left: 30px; /* Space for the radio button */
+}
+
+.address-type {
+    font-size: 18px;
+    font-weight: bold;
+    color: #000000; /* Dark Green */
+}
+
+.address-name,
+.address-phone,
+.address-details,
+.address-landmark,
+.address-location {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #444;
+}
+
+.fa {
+    margin-right: 5px;
+    color: #4CAF50;
+}
+.cart-detail {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.cart-detail h2 {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.cart-detail ul {
+    list-style: none;
+    padding: 0;
+}
+
+.cart-detail li {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.cart-detail li:last-child {
+    border-bottom: none;
+    font-weight: bold;
+}
+
+/* Place Order Button */
+ .place-order {
+    background: linear-gradient(to right, #ff5f6d, #ff9966) ;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 5px;
+    font-size: 18px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+ .place-order:hover {
+    background: linear-gradient(to right, #f6d365, #fda085) !important;
+    color: #000000;
+}
+/* Order Summary Container */
+.cart-summary {
+    width: 100%;
+    background: #f4f4f4; /* Light gray background for a clean look */
+    padding: 15px;
+    border-radius: 8px;
+}
+.cart-total h5{
+    color: #e44d26;
+}
+
+/* Title */
+.cart-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+/* Cart Items */
+.cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Cart Item */
+.cart-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff; /* White background for contrast */
+    padding: 10px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    border: 1px solid #ddd;
+}
+
+.cart-item:hover {
+    background: #e9ecef; /* Subtle hover effect */
+}
+
+/* Product Image */
+.product-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+/* Product Details */
+.product-details {
+    flex: 1;
+    margin-left: 12px;
+    font-size: 14px;
+    color: #333;
+}
+
+.product-name {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.product-info {
+    font-size: 13px;
+    color: #666;
+}
+
+/* Product Price */
+.product-price {
+    font-size: 16px;
+    font-weight: bold;
+    color: #e44d26;
+}
+
+/* Cart Total */
+.cart-total {
+    text-align: right;
+    margin-top: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #222;
+    border-top: 2px solid #ccc;
+    padding-top: 8px;
+}
+.summary-head{
+	display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #5ca4f0;
+    ; /* Light Background */
+    padding: 15px;
+    border-radius: 10px;
+    color: #ffffff;
+	margin-bottom: 10px;
+}
+.name-feild{
+    background-color: #fff;
+}
+.modal {
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        background: #2c2b2b;
+        padding: 20px;
+        border-radius: 8px;
+        width: 600px; /* Increased width */
+        text-align: center;
+        position: relative;
+    }
+
+    .modal-content h2 {
+        margin-bottom: 15px;
+        color: white;
+    }
+
+    .modal-content label {
+        display: block;
+        color: white;
+        text-align: left;
+        margin: 10px 0 5px;
+    }
+
+    .form-group {
+        display: flex;
+        gap: 15px;
+    }
+
+    .form-group div {
+        width: 50%;
+    }
+
+    .modal-content input,
+    .modal-content select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .modal-content textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        min-height: 80px;
+    }
+
+    .btn-save {
+        margin-top: 20px;
+        background: linear-gradient(135deg, #232526, #414345);
+        color: white;
+        box-shadow: 0 0 8px rgba(65, 67, 69, 0.7);
+        padding: 10px 15px;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+        transition: 0.3s;
+    }
+
+    .btn-save:hover {
+        background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    }
+
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 20px;
+        cursor: pointer;
+    }
+    .cart-tota{
+        color:#e44d26 ;
+    }
+		</style>
+		<%-include('../../views/partials/user/footer.ejs')%>

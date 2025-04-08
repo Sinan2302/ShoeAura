@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/admin/user_management.css">
+    <title>Product Management</title>
+    <link rel="icon" type="image/png" href="/images/shoeAura icon.png">
+
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/usermanagement">User Management</a>
+            <a  href="/admin/product_management">Products Management</a>
+            <a class="clr" href="/order_management">Order Management</a>
+            <a  href="/admin/category_management">Category Management</a>
+            <a href="/admin/coupon_management">Coupons Management</a>
+            <a href="#"><form action="/admin/logout" method="POST">
+                <button type="submit" class="ban-btn btn-danger ">Logout</button>
+            </form></a>
+        </div>
+
+        <div class="main-content">
+            <nav class="navbar">
+                <a class="navbar-brand"><div id="colorlib-logo"><img class="logo-header" src="/images/new shoeAura.png" alt=""></div></a>
+            </nav>
+
+            <div class="content">
+                <h1>Order Management</h1>
+                <div class="order-section">
+                    <div class="search-container">
+                        <input type="text" class="form-control" id="searchOrderInput" placeholder="Search orders..." oninput="searchOrders()">
+                        <button class="btn search-btn" type="button" onclick="goBack()">Back</button>                        
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="order-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>User</th>
+                                    <th>Order Date</th>
+                                    <th>Status</th>
+                                    <th>Total Amount</th>
+                                    <th>Payment Method</th>
+                                    <th>View</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderTableBody">
+                                <% orders.forEach(order => { %>
+                                    <tr>
+                                        <td><%= order.orderId %></td>
+                                        <td><%= order.userId.name %></td>
+                                        <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
+                                        <td>
+                                            <select class="order-status-select" onchange="updateOrderStatus('<%= order.orderId %>', this.value)">
+                                                <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                                                <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
+                                                <option value="Completed" <%= order.status === 'Completed' ? 'selected' : '' %>>Completed</option>
+                                                <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                                <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                                <option value="Cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                                <option value="Return Requested" <%= order.status === 'Return Requested' ? 'selected' : '' %>>Return Requested</option>
+                                                <option value="Returned" <%= order.status === 'Returned' ? 'selected' : '' %>>Returned</option>
+                                                <option value="Confirmed" <%= order.status === 'Confirmed' ? 'selected' : '' %>>Confirmed</option>
+                                                <option value="Partially Returned" <%= order.status === 'Partially Returned' ? 'selected' : '' %>>Partially Returned</option>
+                                            </select>
+                                        </td>
+                                        <td>₹<%= order.totalAmount.toFixed(2) %></td>
+                                        <td><%= order.paymentMethod %></td>
+                                        <td>
+                                            <button class="btn view-btn" onclick="openOrderModal('<%= order.orderId %>')">View</button>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                    
+        
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <div class="block-27" style="display: flex; justify-content: center; align-items: center; padding: 10px;">
+                                <ul>
+                                    <% if (currentPage > 1) { %>
+                                        <li><a href="?page=<%= currentPage - 1 %>"><i class="ion-ios-arrow-back"></i></a></li>
+                                    <% } %>
+        
+                                    <% for (let i = 1; i <= totalPages; i++) { %>
+                                        <li class="<%= i === currentPage ? 'active' : '' %>">
+                                            <a href="?page=<%= i %>"><%= i %></a>
+                                        </li>
+                                    <% } %>
+        
+                                    <% if (currentPage < totalPages) { %>
+                                        <li><a href="?page=<%= currentPage + 1 %>"><i class="ion-ios-arrow-forward"></i></a></li>
+                                    <% } %>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+            <!-- The Modal -->
+            <div id="orderDetailsModal" class="modal" style="display: none;" >
+                <div class="modal-content">
+                    <span class="modal-close" onclick="closeOrderModal()">&times;</span>
+                    <h2 class="modal-header">Order Details</h2>
+                    <p><strong>Order ID:</strong> <span id="modalOrderId"></span></p>
+                    <p><strong>Date:</strong> <span id="modalOrderDate"></span></p>
+                    <p><strong>Customer Name:</strong> <span id="modalCustomerName"></span></p>
+                    <p><strong>Total:</strong> ₹<span id="modalTotalAmount"></span></p>
+                    <p><strong>Payment Method:</strong> <span id="modalPaymentMethod"></span></p>
+                    <p><strong>Status:</strong> <span id="modalOrderStatus" class="status"></span></p>
+            
+                    <!-- Cancellation Reason (Initially Hidden) -->
+                    <p id="cancellationReasonContainer" style="display: none;">
+                        <strong>Cancellation Reason:</strong> <span id="modalCancellationReason"></span>
+                    </p>
+                     <!-- Return Reason (Initially Hidden) -->
+                    <p id="returnReasonContainer" style="display: none;">
+                        <strong>Return Reason:</strong> <span id="modalReturnReason"></span>
+                    </p>
+
+                    <!-- Delivery Address -->
+                    <h3>Delivery Address:</h3>
+                    <div id="modalDeliveryAddress" class="delivery-address"></div>
+                    
+                    <h3>Products:</h3>
+                    <div id="modalOrderItems" class="product-list"></div>
+                </div>
+            </div>
+            
+            
+            
+            
+            
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+
+let debounceTimer;
+
+function searchOrders() {
+    clearTimeout(debounceTimer); 
+
+    debounceTimer = setTimeout(() => {
+        const searchInput = document.getElementById("searchOrderInput").value.trim();
+        const currentUrl = new URL(window.location.href);
+
+        if (searchInput) {
+            currentUrl.searchParams.set("search", searchInput);
+        } else {
+            currentUrl.searchParams.delete("search");
+        }
+
+        history.pushState({}, "", currentUrl.href);
+        window.location.href = currentUrl.href;
+    }, 1000); 
+}
+
+function goBack() {
+    window.location.href = "/admin/order_management";
+}
+
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    const selects = document.querySelectorAll('.order-status-select');
+    selects.forEach(select => {
+        select.setAttribute('data-selected', select.value);
+        select.addEventListener('change', function() {
+            this.setAttribute('data-selected', this.value);
+        });
+    });
+});
+
+function searchOrders() {
+    const searchInput = document.getElementById("searchOrderInput").value.toLowerCase();
+    const table = document.querySelector(".order-table tbody");
+    const rows = table.querySelectorAll("tr");
+
+    rows.forEach(row => {
+        const orderIdCell = row.cells[0];
+        const userCell = row.cells[1];
+        const orderDateCell = row.cells[2];
+        const statusCell = row.cells[3];
+        const totalAmountCell = row.cells[4];
+        const paymentMethodCell = row.cells[5];
+
+        if (orderIdCell && userCell && orderDateCell && statusCell && totalAmountCell && paymentMethodCell) {
+            const orderId = orderIdCell.textContent.toLowerCase();
+            const user = userCell.textContent.toLowerCase();
+            const orderDate = orderDateCell.textContent.toLowerCase();
+            const status = statusCell.textContent.toLowerCase();
+            const totalAmount = totalAmountCell.textContent.toLowerCase();
+            const paymentMethod = paymentMethodCell.textContent.toLowerCase();
+
+            if (
+                orderId.includes(searchInput) ||
+                user.includes(searchInput) ||
+                orderDate.includes(searchInput) ||
+                status.includes(searchInput) ||
+                totalAmount.includes(searchInput) ||
+                paymentMethod.includes(searchInput)
+            ) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        }
+    });
+}
+
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    async function searchOrders() {
+        const searchQuery = document.getElementById("searchOrderInput").value;
+    }
+
+    async function updateOrderStatus(orderId, status) {
+        try {
+            const response = await fetch(`/admin/updateOrderStatus/${orderId}`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: status })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Order status updated successfully!'
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error updating order status: ' + data.message
+                });
+            }
+        } catch (error) {
+            console.error("Error updating order status:", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error updating order status. Please try again later.'
+            });
+        }
+    }
+
+
+    async function openOrderModal(orderId) {
+        try {
+            const response = await fetch(`/admin/orderview/${orderId}`);
+            const data = await response.json();
+
+            if (!data || !data.success) {
+                console.error("Error fetching order details:", data.message || "Unknown error");
+                return;
+            }
+
+            const { order, selectedAddress } = data;
+        
+            document.getElementById("modalOrderId").innerText = order.orderId || "N/A";
+            document.getElementById("modalOrderDate").innerText = order.createdAt 
+                ? new Date(order.createdAt).toLocaleDateString() 
+                : "N/A";
+            document.getElementById("modalCustomerName").innerText = order.userId?.name || "Unknown";
+            document.getElementById("modalTotalAmount").innerText = order.totalAmount 
+                ? `${order.totalAmount.toFixed(2)}` 
+                : "N/A";
+            document.getElementById("modalPaymentMethod").innerText = order.paymentMethod || "N/A";
+
+            const statusElement = document.getElementById("modalOrderStatus");
+            statusElement.innerText = order.status || "N/A";
+            statusElement.className = 'status';
+
+            const statusClasses = {
+                'Pending': 'status-pending',
+                'Processing': 'status-processing',
+                'Completed': 'status-completed',
+                'Shipped': 'status-shipped',
+                'Delivered': 'status-delivered',
+                'Cancelled': 'status-cancelled',
+                'Return Requested': 'status-return-requested',
+                'Returned': 'status-returned',
+                'Confirmed': 'status-confirmed',
+                'Partially Returned': 'status-partially-returned',
+                'Default': 'status-default'
+            };
+
+            if (statusClasses[order.status]) {
+                statusElement.classList.add(statusClasses[order.status]);
+            }
+
+            const cancellationContainer = document.getElementById("cancellationReasonContainer");
+            if (order.status === "Cancelled") {
+                document.getElementById("modalCancellationReason").textContent = order.cancellationReason || "Not provided";
+                cancellationContainer.style.display = "block";
+            } else {
+                cancellationContainer.style.display = "none";
+            }
+
+            const returnReasonContainer = document.getElementById("returnReasonContainer");
+            if (order.status === "Return Requested") {
+                document.getElementById("modalReturnReason").textContent = order.returnReason || "Not provided";
+                returnReasonContainer.style.display = "block";
+            } else {
+                returnReasonContainer.style.display = "none";
+            }
+
+
+            // Display the delivery address
+            const addressContainer = document.getElementById("modalDeliveryAddress");
+            if (selectedAddress) {
+                addressContainer.innerHTML = `
+                    <p><strong>Name:</strong> ${selectedAddress.name || "N/A"}</p>
+                    <p><strong>Address:</strong> ${selectedAddress.address || "N/A"}</p>
+                    <p><strong>City:</strong> ${selectedAddress.city || "N/A"}</p>
+                    <p><strong>State:</strong> ${selectedAddress.state || "N/A"}</p>
+                    <p><strong>Landmark:</strong> ${selectedAddress.landmark || "N/A"}</p>
+                    <p><strong>Pincode:</strong> ${selectedAddress.pincode || "N/A"}</p>
+                    <p><strong>Phone:</strong> ${selectedAddress.phone || "N/A"}</p>
+                    <p><strong>Type:</strong> ${selectedAddress.addressType || "N/A"}</p>
+                `;
+            } else {
+                addressContainer.innerText = "Address not available.";
+            }
+
+            // Populate order items
+            const itemsContainer = document.getElementById("modalOrderItems");
+            itemsContainer.innerHTML = "";
+
+            order.items.forEach(item => {
+                const imageUrl = item.productId?.productImages?.[0]?.includes('http') 
+                    ? item.productId.productImages[0] 
+                    : `/uploads/${item.productId?.productImages?.[0] || "default.jpg"}`;
+
+                itemsContainer.innerHTML += `
+                    <div class="product-item d-flex flex-column flex-md-row align-items-center border rounded p-3 shadow-sm mb-3">
+                        <img src="${imageUrl}" alt="${item.productId?.productname || "Product"}" class="product-item-image img-fluid rounded me-md-3 mb-2 mb-md-0" style="width: 120px; height: 120px; object-fit: cover;">
+                        
+                        <div class="product-item-details flex-grow-1">
+                            <h5 class="product-item-title fw-bold">${item.productId?.productname || "Unknown Product"}</h5>
+                            <p class="product-item-description"><strong>Size:</strong> ${item.size || "N/A"}</p>
+                            <p class="product-item-quantity"><strong>Quantity:</strong> ${item.quantity || "N/A"}</p>
+                            <div class="product-item-price text-success fw-bold">₹${item.price ? item.price.toFixed(2) : "N/A"}</div>
+
+                            ${item.cancelled ? `
+                                <div class="alert alert-danger p-2 mt-2"><strong>❌ Cancelled:</strong> ${item.cancellationReason}</div>
+                            ` : ""}
+
+                            ${item.returnStatus ? `
+                                <div class="alert ${getReturnStatusClass(item.returnStatus)} p-2 mt-2">
+                                    <strong>🔄 ${item.returnStatus}</strong>
+                                </div>
+                                <p class="mt-2"><strong>Return Reason:</strong> ${item.returnReason}</p>
+                                <p><strong>Customer Comment:</strong> ${item.returnComment}</p>
+
+                                ${item.returnStatus === "Return Requested" ? `
+                                    <div class="d-flex gap-2 mt-2">
+                                        <button class="btn btn-success btn-sm fw-bold" onclick="approveReturn('${order._id}')">
+                                            ✅ Approve
+                                        </button>
+                                        <button class="btn btn-danger btn-sm fw-bold" onclick="rejectReturn('${order._id}')">
+                                            ❌ Reject
+                                        </button>
+                                    </div>
+                                ` : ""}
+                            ` : ""}
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Show the modal
+            document.getElementById("orderDetailsModal").style.display = "block";
+        } catch (error) {
+            console.error("Error opening order modal:", error);
+        }
+    }
+
+function getReturnStatusClass(status) {
+    switch (status) {
+        case "Return Request Accepted":
+            return "alert-success";  // Green alert
+        case "Return Request Rejected":
+            return "alert-danger";   // Red alert
+        case "Return Requested":
+        default:
+            return "alert-warning";  // Yellow alert
+    }
+}
+
+window.approveReturn = function (orderId) {
+    fetch(`/admin/orders/${orderId}/return/approve`, { method: "PATCH" })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    title: "✅ Success!",
+                    text: "Return approved successfully!",
+                    icon: "success",
+                    confirmButtonText: "OK",
+                }).then(() => location.reload());
+            } else {
+                Swal.fire({
+                    title: "⚠️ Error!",
+                    text: "Failed to approve return: " + data.message,
+                    icon: "error",
+                    confirmButtonText: "OK",
+                });
+            }
+        })
+        .catch(error => {
+            Swal.fire({
+                title: "⚠️ Error!",
+                text: "Something went wrong!",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+            console.error("Error:", error);
+        });
+};
+
+window.rejectReturn = function (orderId) {
+    fetch(`/admin/orders/${orderId}/return/reject`, { method: "PATCH" })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    title: "❌ Rejected!",
+                    text: "Return request has been rejected.",
+                    icon: "warning",
+                    confirmButtonText: "OK",
+                }).then(() => location.reload());
+            } else {
+                Swal.fire({
+                    title: "⚠️ Error!",
+                    text: "Failed to reject return: " + data.message,
+                    icon: "error",
+                    confirmButtonText: "OK",
+                });
+            }
+        })
+        .catch(error => {
+            Swal.fire({
+                title: "⚠️ Error!",
+                text: "Something went wrong!",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+            console.error("Error:", error);
+        });
+};
+
+
+
+
+function closeOrderModal() {
+    document.getElementById("orderDetailsModal").style.display = "none";
+}
+
+
+
+
+    window.searchOrders = searchOrders;
+    window.updateOrderStatus = updateOrderStatus;
+    window.openOrderModal = openOrderModal;
+    window.closeOrderModal = closeOrderModal;
+});
+
+
+    </script>
+
+<style>
+ /* Base styles for the select dropdown */
+.order-status-select {
+    width: 100%;
+    height: 40px; /* Adjust the height as needed */
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    font-size: 16px;
+    color: #333;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http://www.w3.org/2000/svg%22%20viewBox%3D%220%200%204%205%22%3E%3Cpath%20fill%3D%22%23aaa%22%20d%3D%22M2%203.5l-2-2h4l-2%202z%22/%3E%3C/svg%3E');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+}
+
+.order-status-select:focus {
+    border-color: #5b9bd5;
+    outline: none;
+    box-shadow: 0 0 5px rgba(81, 167, 232, 0.5);
+}
+
+/* Apply color to the select itself based on the selected value */
+.order-status-select {
+    background-color: inherit;
+}
+
+/* Pending */
+.order-status-select[data-selected="Pending"] {
+    background-color: #00d0ff;
+    color: #ffffff;
+}
+
+/* Processing */
+.order-status-select[data-selected="Processing"] {
+    background-color: #ff9800;
+    color: #ffffff;
+}
+
+/* Completed */
+.order-status-select[data-selected="Completed"] {
+    background-color: #4CAF50;
+    color: #ffffff;
+}
+
+/* Shipped */
+.order-status-select[data-selected="Shipped"] {
+    background-color: #1e88e5;
+    color: #ffffff;
+}
+
+/* Delivered */
+.order-status-select[data-selected="Delivered"] {
+    background-color: #388e3c;
+    color: #ffffff;
+}
+
+/* Cancelled */
+.order-status-select[data-selected="Cancelled"] {
+    background-color: #FF0000;
+    color: #ffffff;
+}
+
+/* Return Requested */
+.order-status-select[data-selected="Return Requested"] {
+    background-color: #ff5722;
+    color: #ffffff;
+}
+
+/* Returned */
+.order-status-select[data-selected="Returned"] {
+    background-color: #ffc400;
+    color: #ffffff;
+}
+
+/* Paid */
+.order-status-select[data-selected="Confirmed"] {
+    background-color: #673ab7;
+    color: #ffffff;
+}
+.order-status-select[data-selected="Partially Returned"] {
+    background-color: #673ab7;
+    color: #ffffff;
+}
+
+/* Status styles */
+.status {
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: #fff;
+}
+
+/* Status-specific colors */
+.status-pending {
+    background-color: #FFA500; /* Orange for Pending */
+    color: white;
+}
+
+.status-processing {
+    background-color: #00d0ff; /* Blue for Processing */
+    color: white;
+}
+
+.status-completed {
+    background-color: #4CAF50; /* Green for Completed */
+    color: white;
+}
+
+.status-shipped {
+    background-color: #1E90FF; /* Dark Blue for Shipped */
+    color: white;
+}
+
+.status-delivered {
+    background-color: #008000; /* Dark Green for Delivered */
+    color: white;
+}
+
+.status-cancelled {
+    background-color: #FF0000; /* Red for Cancelled */
+    color: white;
+}
+
+.status-return-requested {
+    background-color: #FF8C00; /* Dark Orange for Return Requested */
+    color: white;
+}
+
+.status-returned {
+    background-color: #ffc400; /* Yellow for Returned */
+    color: black;
+}
+
+.status-confirmed {
+    background-color: #8A2BE2; /* Purple for Paid */
+    color: white;
+}
+
+.status-partially-returned{
+    background-color: #FF8C00; /* Dark Orange for Return Requested */
+    color: white;
+}
+.status-default {
+    background-color: #808080; /* Grey for Unknown Status */
+    color: white;
+}
+
+/* Status styles */
+.status {
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: #fff;
+}
+
+
+/* Modal styles */
+.modal {
+    display: flex ; 
+    position: fixed;
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.8); 
+  /* Center horizontally */
+}
+
+.modal-content {
+    background-color: #333;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #4CA858; /* Updated border color */
+    width: 80%;
+    max-width: 600px;
+    border-radius: 10px;
+    box-shadow: 0 0 5px #4CA858; /* Updated box shadow */
+    animation: slide-in 0.3s ease-out;
+    color: #fff; /* Text color to white */
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.modal-close {
+    color: #ccc;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-close:hover,
+.modal-close:focus {
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-header {
+    margin-top: 0;
+    color: #fff;
+    font-family: 'Arial', sans-serif;
+}
+
+.modal-content p {
+    font-family: 'Arial', sans-serif;
+    color: #ccc; /* Text color */
+}
+
+.product-list {
+    margin-top: 20px;
+}
+
+.product-item {
+    border: 1px solid #4CA858; /* Updated border color */
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    background-color: #555;
+    box-shadow: 0 0 5px #4CA858; /* Updated box shadow */
+}
+
+.product-item img {
+    max-width: 70px; /* Larger image size */
+    margin-right: 10px;
+}
+
+.product-item-details {
+    flex: 1;
+}
+
+.product-item-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.product-item-description {
+    font-size: 14px;
+    color: #ddd;
+}
+
+.product-item-price {
+    font-size: 14px;
+    font-weight: bold;
+    color: #FFC107; /* Updated price color */
+}
+
+.product-item-quantity {
+    font-size: 14px;
+    color: #ccc;
+}
+
+
+.product-item-details {
+    border-radius: 10px;
+    transition: all 0.3s ease-in-out;
+}
+
+.product-item-details:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+
+
+
+</style>
+</body>
+</html>
