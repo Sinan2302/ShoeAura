@@ -8,6 +8,8 @@ const connectDB = require('./config/db');
 const userRouter = require('./routes/user');
 const adminRouter = require('./routes/admin');
 const wishlistMiddleware = require('./middleware/checkWishlist'); 
+require("dotenv").config();
+
 
 
 const app = express();
